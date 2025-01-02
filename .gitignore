@@ -1,4 +1,3 @@
-# Ignorar diretórios e arquivos específicos
 .vscode/
-bin*
+bin/
 build/
