@@ -1,8 +1,9 @@
 #include "../include/tabuleiro.hpp"
 #include "../include/peças.hpp"
+#include <iostream>
 
-Tabuleiro::Tabuleiro(const bool& brancasPrimeiro)
-    : brancasPrimeiro(brancasPrimeiro)
+Tabuleiro::Tabuleiro(const bool& brancasPrimeiro, const float& tamanho_casas)
+    : brancasPrimeiro(brancasPrimeiro), tamanho_casas(tamanho_casas)
 {
     for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
@@ -15,42 +16,43 @@ Tabuleiro::Tabuleiro(const bool& brancasPrimeiro)
         {
             if (y < 2)
             {
+                std::string cor = brancasPrimeiro ? "black" : "white";
                 if (y == 0)
                 {
                     if (x == 0 || x == 7)
-                        tabuleiro[y][x] = new Torre(sf::Vector2i({x, y}), *this, !brancasPrimeiro);
+                        tabuleiro[y][x] = new Torre(std::filesystem::current_path() / ("assets/" + cor + "/" + "torre" + ".png"), *this ,sf::Vector2i({x, y}), !brancasPrimeiro);
                     else if (x == 1 || x == 6)
-                        tabuleiro[y][x] = new Cavalo(sf::Vector2i({x, y}), *this, !brancasPrimeiro);
+                        tabuleiro[y][x] = new Cavalo(std::filesystem::current_path() / ("assets/" + cor + "/" + "cavalo" + ".png"), *this ,sf::Vector2i({x, y}), !brancasPrimeiro);
                     else if (x == 2 || x == 5)
-                        tabuleiro[y][x] = new Bispo(sf::Vector2i({x, y}), *this, !brancasPrimeiro);
+                        tabuleiro[y][x] = new Bispo(std::filesystem::current_path() / ("assets/" + cor + "/" + "bispo" + ".png"), *this ,sf::Vector2i({x, y}), !brancasPrimeiro);
                     else if (x == 3)
-                        tabuleiro[y][x] = new Rainha(sf::Vector2i({x, y}), *this, !brancasPrimeiro);
+                        tabuleiro[y][x] = new Rainha(std::filesystem::current_path() / ("assets/" + cor + "/" + "rainha" + ".png"), *this ,sf::Vector2i({x, y}), !brancasPrimeiro);
                     else if (x == 4)
-                        tabuleiro[y][x] = new Rei(sf::Vector2i({x, y}), *this, !brancasPrimeiro);
+                        tabuleiro[y][x] = new Rei(std::filesystem::current_path() / ("assets/" + cor + "/" + "rei" + ".png"), *this ,sf::Vector2i({x, y}), !brancasPrimeiro);
                 }
                 else 
-                    tabuleiro[y][x] = new Peao(sf::Vector2i({x, y}), *this, !brancasPrimeiro, true);
+                    tabuleiro[y][x] = new Peao(std::filesystem::current_path() / ("assets/" + cor + "/" + "peao" + ".png"), *this ,sf::Vector2i({x, y}), !brancasPrimeiro, true);
             }
             else if (y > 5)
             {
+                std::string cor = brancasPrimeiro ? "white" : "black";
                 if (y == 7)
                 {
                     if (x == 0 || x == 7)
-                        tabuleiro[y][x] = new Torre(sf::Vector2i({x, y}), *this, brancasPrimeiro);
+                        tabuleiro[y][x] = new Torre(std::filesystem::current_path() / ("assets/" + cor + "/" + "torre" + ".png"), *this , sf::Vector2i({x, y}), brancasPrimeiro);
                     else if (x == 1 || x == 6)
-                        tabuleiro[y][x] = new Cavalo(sf::Vector2i({x, y}), *this, brancasPrimeiro);
+                        tabuleiro[y][x] = new Cavalo(std::filesystem::current_path() / ("assets/" + cor + "/" + "cavalo" + ".png"), *this , sf::Vector2i({x, y}), brancasPrimeiro);
                     else if (x == 2 || x == 5)
-                        tabuleiro[y][x] = new Bispo(sf::Vector2i({x, y}), *this, brancasPrimeiro);
+                        tabuleiro[y][x] = new Bispo(std::filesystem::current_path() / ("assets/" + cor + "/" + "bispo" + ".png"), *this , sf::Vector2i({x, y}), brancasPrimeiro);
                     else if (x == 3)
-                        tabuleiro[y][x] = new Rainha(sf::Vector2i({x, y}), *this, brancasPrimeiro);
+                        tabuleiro[y][x] = new Rainha(std::filesystem::current_path() / ("assets/" + cor + "/" + "rainha" + ".png"), *this , sf::Vector2i({x, y}), brancasPrimeiro);
                     else if (x == 4)
-                        tabuleiro[y][x] = new Rei(sf::Vector2i({x, y}), *this, brancasPrimeiro);
+                        tabuleiro[y][x] = new Rei(std::filesystem::current_path() / ("assets/" + cor + "/" + "rei" + ".png"), *this , sf::Vector2i({x, y}), brancasPrimeiro);
                 }
                 else 
-                    tabuleiro[y][x] = new Peao(sf::Vector2i({x, y}), *this, brancasPrimeiro, true);
+                    tabuleiro[y][x] = new Peao(std::filesystem::current_path() / ("assets/" + cor + "/" + "peao" + ".png"), *this , sf::Vector2i({x, y}), brancasPrimeiro, true);
+
             }
-            else 
-                tabuleiro[y][x] = nullptr;
         }
     }
 }
@@ -69,7 +71,7 @@ void Tabuleiro::setTabuleiro(Peça* (*tabuleiro)[8])
 {
     for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
-            this->tabuleiro[y][x] = tabuleiro[y][x];
+            this->tabuleiro[y][x] = *(tabuleiro[y] + x);
 }
 Tabuleiro::~Tabuleiro()
 {

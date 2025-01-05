@@ -21,7 +21,7 @@ class GameUI
     public:
         float tamanho_casas;
         GameUI(sf::RenderWindow& window, Tabuleiro& tabuleiro);
-        void update();
+        void update(GameController* gameC);
         void OnMouseButtonLeftPressed(GameController* gameC);
         void OnMouseButtonLeftClicked(GameController* gameC);
         ~GameUI();

@@ -5,7 +5,8 @@ Game::Game(sf::RenderWindow* window)
 {
     std::cout << "Game constructor called" << std::endl;
     this->window = window;
-    tabuleiro = new Tabuleiro(true);
+    float tamanho_casas = (window->getSize().x + window->getSize().y)/2/8;
+    tabuleiro = new Tabuleiro(true, tamanho_casas);
     std::cout << "Tabuleiro constructor called" << std::endl;
     gameUI = new GameUI(*window, *tabuleiro);
     std::cout << "GameUI constructor called" << std::endl;
@@ -15,29 +16,18 @@ Game::Game(sf::RenderWindow* window)
 
 void Game::run()
 {
-    sf::Clock clock;
-    sf::Time elapsed;
     while (window->isOpen())
     {
         sf::Event event;
-        clock.restart();
         while (window->pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
                 window->close();
             else if (event.type == sf::Event::MouseButtonPressed)
-            {
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-                {
-                    sf::sleep(sf::milliseconds(500));
-                    if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-                        gameUI->OnMouseButtonLeftPressed(gameController);
-                    else 
-                        gameUI->OnMouseButtonLeftClicked(gameController);
-                }
-            }
+                    gameUI->OnMouseButtonLeftPressed(gameController);
         }
-        gameUI->update();
-        sf::sleep(sf::milliseconds(500));
+        gameUI->update(gameController);
+        sf::sleep(sf::milliseconds(100));
     }
 }

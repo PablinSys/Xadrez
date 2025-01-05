@@ -44,57 +44,56 @@ void GameUI::renderTab()
 }
 void GameUI::renderPews()
 {
-    Peça* (*peças)[8] = tabuleiro.getTabuleiro();
-    int tamanho = (int)tamanho_casas, wIndex = 0, bIndex = 0;
-    for (int y = 0; y < 8; y++)
-    {
-        for (int x = 0; x < 8; x++)
-        {
-            if (peças[y][x] != nullptr)
-            {
-                if (peças[])
-                int pos_x = tamanho*x + tamanho/2 - 60, pos_y = y*tamanho - tamanho/2 - 60;
+    // Peça* (*peças)[8] = tabuleiro.getTabuleiro();
+    // int tamanho = (int)tamanho_casas, wIndex = 0, bIndex = 0;
+    // for (int y = 0; y < 8; y++)
+    // {
+    //     for (int x = 0; x < 8; x++)
+    //     {
+    //         if (peças[y][x] != nullptr)
+    //         {
+    //             if (peças[])
+    //             int pos_x = tamanho*x + tamanho/2 - 60, pos_y = y*tamanho - tamanho/2 - 60;
 
-                sf::Texture texture;
-                std::string tipo = typeid(*peças[y][x]).name();
-                tipo.erase(std::remove_if(tipo.begin(), tipo.end(), [](char c) { return std::isdigit(c); }), tipo.end()); std::transform(tipo.begin(), tipo.end(), tipo.begin(), ::tolower);
-                std::string cor = peças[y][x]->isWhite ? "white" : "black";
+    //             sf::Texture texture;
+    //             std::string tipo = typeid(*peças[y][x]).name();
+    //             tipo.erase(std::remove_if(tipo.begin(), tipo.end(), [](char c) { return std::isdigit(c); }), tipo.end()); std::transform(tipo.begin(), tipo.end(), tipo.begin(), ::tolower);
+    //             std::string cor = peças[y][x]->isWhite ? "white" : "black";
 
-                //std::cout << "tipo: " << tipo << " cor: " << cor << "\n";
-                //std::cout << "(x,y) = (" << pos_x << "," << pos_y << ")\n";
+    //             //std::cout << "tipo: " << tipo << " cor: " << cor << "\n";
+    //             //std::cout << "(x,y) = (" << pos_x << "," << pos_y << ")\n";
                 
-                if (!texture.loadFromFile(std::filesystem::current_path() / ("assets/" + cor + "/" + tipo + ".png")))
-                    throw std::runtime_error("Erro ao carregar a textura da peça.\nCaminho: " + (std::filesystem::current_path() / ("assets/" + cor + "/" + tipo + ".png")).string());
+    //             if (!texture.loadFromFile(std::filesystem::current_path() / ("assets/" + cor + "/" + tipo + ".png")))
+    //                 throw std::runtime_error("Erro ao carregar a textura da peça.\nCaminho: " + (std::filesystem::current_path() / ("assets/" + cor + "/" + tipo + ".png")).string());
 
-                sf::Sprite sprite(texture);
-                sprite.setOrigin(pos_x, pos_y);
-                sprite.setPosition(pos_x, pos_y);
-                peças[y][x]->positionUI = {(float)pos_x, (float)pos_y};
+    //             sf::Sprite sprite(texture);
+    //             sprite.setOrigin(pos_x, pos_y);
+    //             sprite.setPosition(pos_x, pos_y);
+    //             peças[y][x]->positionUI = {(float)pos_x, (float)pos_y};
                 
-                if (peças[y][x]->isWhite)
-                    white_pewsUI[wIndex++] = sprite;
-                else
-                    black_pewsUI[bIndex++] = sprite;
-                //std::cout << "Added -> wIndex: " << wIndex << " bIndex: " << bIndex << "\n";
-            }
-        }
-    }
+    //             if (peças[y][x]->isWhite)
+    //                 white_pewsUI[wIndex++] = sprite;
+    //             else
+    //                 black_pewsUI[bIndex++] = sprite;
+    //             //std::cout << "Added -> wIndex: " << wIndex << " bIndex: " << bIndex << "\n";
+    //         }
+    //     }
+    // }
+    return;
 }
-void GameUI::update()
+void GameUI::update(GameController* gameC)
 {
     if ((int)tamanho_casas != (int)((window->getSize().x + window->getSize().y)/2/8))
         renderTab();
 
     window->clear(sf::Color::Black);
-
+    Peça* (*peças)[8] = gameC->getTabuleiro();
     for (int i = 0; i < 64; i++)
         window->draw(tabuleiroUI[i]);
-    for (int i = 0; i < 16; i++)
-    {
-        std::cout << "i: " << i << "\n";
-        window->draw(white_pewsUI[i]);
-        window->draw(black_pewsUI[i]);
-    }
+    for (int y = 0; y < 8; y++)
+        for (int x = 0; x < 8; x++)
+            if (peças[y][x] != nullptr)
+                window->draw(peças[y][x]->objectUI);
 
     window->display();
 }
@@ -105,17 +104,19 @@ void GameUI::OnMouseButtonLeftPressed(GameController* gameC)
 	while (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 	{
         gameC->moverPeça({pos_x, pos_y}, {(float) sf::Mouse::getPosition(*window).x, (float) sf::Mouse::getPosition(*window).y}, sf::Mouse::isButtonPressed(sf::Mouse::Left));
-		renderPews();
+		update(gameC);
 	}
     gameC->moverPeça({pos_x, pos_y}, {(float) sf::Mouse::getPosition(*window).x, (float) sf::Mouse::getPosition(*window).y}, sf::Mouse::isButtonPressed(sf::Mouse::Left));
-    renderPews();
+    update(gameC);
 }
 void GameUI::OnMouseButtonLeftClicked(GameController* gameC)
 {
+    return;
+
     int pos_x = (int)( sf::Mouse::getPosition(*window).x/tamanho_casas), pos_y = (int)(sf::Mouse::getPosition(*window).y/tamanho_casas);
     while (!sf::Mouse::isButtonPressed(sf::Mouse::Left)){}
     gameC->moverPeça({pos_x, pos_y}, {(float) sf::Mouse::getPosition(*window).x, (float) sf::Mouse::getPosition(*window).y}, sf::Mouse::isButtonPressed(sf::Mouse::Left));
-    renderPews();
+    update(gameC);
 }
 GameUI::~GameUI()
 {

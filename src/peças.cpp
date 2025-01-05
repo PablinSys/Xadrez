@@ -1,24 +1,34 @@
 #include "../include/peças.hpp"
+#include <iostream>
 
-Peça::Peça(const sf::Vector2i& positionIndex, Tabuleiro& tabuleiro, const bool& isWhite) : 
-    positionIndex(positionIndex), tab(&tabuleiro), isWhite(isWhite) {}  
-Peça::~Peça() 
+Peça::Peça(const std::filesystem::path& path_img, Tabuleiro& tab , const sf::Vector2i& positionIndex, const bool& isWhite)
+    :positionIndex(positionIndex), isWhite(isWhite)
 {
-    delete tab;
+    if (!texture.loadFromFile(path_img)) {
+        throw std::runtime_error("Failed to load texture");
+    }
+    texture.setSmooth(true);
+    objectUI.setTexture(texture);
+    objectUI.setPosition(
+        positionIndex.x * tab.tamanho_casas + (tab.tamanho_casas - 60)/2,
+        positionIndex.y * tab.tamanho_casas + (tab.tamanho_casas - 60)/2
+    );
+    // objectUI.setOrigin(objectUI.getPosition());
 }
-Peao::Peao(const sf::Vector2i& positionIndex, Tabuleiro& tabuleiro, const bool& isWhite, bool primeiroLance) : 
-    Peça(positionIndex, tabuleiro, isWhite), primeiroLance(primeiroLance) {}
-Torre::Torre(const sf::Vector2i& positionIndex, Tabuleiro& tabuleiro, const bool& isWhite) : 
-     Peça(positionIndex, tabuleiro, isWhite) {}
-Bispo::Bispo(const sf::Vector2i& positionIndex, Tabuleiro& tabuleiro, const bool& isWhite) : 
-     Peça(positionIndex, tabuleiro, isWhite) {}
-Cavalo::Cavalo(const sf::Vector2i& positionIndex, Tabuleiro& tabuleiro, const bool& isWhite) : 
-     Peça(positionIndex, tabuleiro, isWhite) {}
-Rainha::Rainha(const sf::Vector2i& positionIndex, Tabuleiro& tabuleiro, const bool& isWhite) : 
-     Peça(positionIndex, tabuleiro, isWhite), Bispo(positionIndex, tabuleiro, isWhite), Torre(positionIndex, tabuleiro, isWhite) {}
-Rei::Rei(const sf::Vector2i& positionIndex, Tabuleiro& tabuleiro, const bool& isWhite) : 
-     Peça(positionIndex, tabuleiro, isWhite) {}
-bool Peao::analisarMovimento(const sf::Vector2i& new_pos) const
+
+Peao::Peao(const std::filesystem::path& path_img, Tabuleiro& tab , const sf::Vector2i& positionIndex, const bool& isWhite, bool primeiroLance) : 
+    Peça(path_img, tab , positionIndex, isWhite), primeiroLance(primeiroLance) {}
+Torre::Torre(const std::filesystem::path& path_img, Tabuleiro& tab , const sf::Vector2i& positionIndex, const bool& isWhite) : 
+     Peça(path_img, tab , positionIndex, isWhite) {}
+Bispo::Bispo(const std::filesystem::path& path_img, Tabuleiro& tab , const sf::Vector2i& positionIndex, const bool& isWhite) : 
+     Peça(path_img, tab , positionIndex, isWhite) {}
+Cavalo::Cavalo(const std::filesystem::path& path_img, Tabuleiro& tab , const sf::Vector2i& positionIndex, const bool& isWhite) : 
+     Peça(path_img, tab , positionIndex, isWhite) {}
+Rainha::Rainha(const std::filesystem::path& path_img, Tabuleiro& tab , const sf::Vector2i& positionIndex, const bool& isWhite) : 
+     Peça(path_img, tab , positionIndex, isWhite), Bispo(path_img, tab , positionIndex, isWhite), Torre(path_img, tab , positionIndex, isWhite) {}
+Rei::Rei(const std::filesystem::path& path_img, Tabuleiro& tab , const sf::Vector2i& positionIndex, const bool& isWhite) : 
+     Peça(path_img, tab , positionIndex, isWhite) {}
+bool Peao::analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const
 { 
     int index_x, index_y; bool isAdversario = isWhite != tab->brancasPrimeiro;
     int new_index_x, new_index_y;
@@ -36,18 +46,25 @@ bool Peao::analisarMovimento(const sf::Vector2i& new_pos) const
         int pos_x, pos_y;
         pos_x = new_index_x, pos_y = new_index_y;
         if (isAdversario) pos_y = 7 - new_index_y;
+
         // Primeira regra : o peão não pode andar mais de uma casa se for o primeiro lance
-        if (primeiroLance && new_index_x == index_x && (index_y - 2 == new_index_y && index_y - 2 >= 0)) {}
+        if (primeiroLance && new_index_x == index_x && 
+            (index_y - 2 == new_index_y && index_y - 2 >= 0) &&
+            tab->getTabuleiro()[pos_y][pos_x] == nullptr) {}
         // Segunda regra : caso andar 1 casa a frente, tenha nenhuma peça a frente
-        else if (index_x == new_index_x && (index_y - 1 == new_index_y && index_y - 1 >= 0)){}
+        else if (index_x == new_index_x && 
+            (index_y - 1 == new_index_y && index_y - 1 >= 0) &&
+            tab->getTabuleiro()[pos_y][pos_x] == nullptr){}
         // Quarta regra : o peão pode comer peças nas diagonais caso tiver um
         else if((index_x - 1 == new_index_x || index_x + 1 == new_index_x) && 
-                (index_x+1 < 8 && index_x-1 >= 0) && 
-                (index_y - 1 == new_index_y && index_y - 1 >= 0) && 
+                (index_x+1 < 8 || index_x-1 >= 0) && 
+                index_y - 1 == new_index_y && 
+                index_y - 1 >= 0 && 
                 tab->getTabuleiro()[pos_y][pos_x] != nullptr)
         {
             if (tab->getTabuleiro()[pos_y][pos_x]->isWhite == isWhite)
                 return false;
+            std::cout << "Capturing piece : " << typeid(*tab->getTabuleiro()[pos_y][pos_x]).name() << std::endl;
         }
         else 
             return false;
@@ -56,7 +73,7 @@ bool Peao::analisarMovimento(const sf::Vector2i& new_pos) const
         return false;
     return true; 
 }
-bool Torre::analisarMovimento(const sf::Vector2i& new_pos) const 
+bool Torre::analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const 
 { 
     int index_x, index_y; bool isAdversario = isWhite != tab->brancasPrimeiro;
     int new_index_x, new_index_y; 
@@ -67,13 +84,15 @@ bool Torre::analisarMovimento(const sf::Vector2i& new_pos) const
     if (isAdversario)
     {
         index_y = 7 - positionIndex.y;  
-        new_index_x = 7 - new_index_x, new_index_y = 7 - new_index_y;
+        new_index_y = 7 - new_index_y;
     }
+    std::cout << "Pos : " << positionIndex.x << " " << positionIndex.y << " New Pos : " << new_index_x << " " << new_index_y << std::endl;
     
     // Primeira regra : enquanto tiver casas na frente disponíveis sem nenhuma peça amiga ou inimiga, pode andar em qualquer uma -> HORIZONTAL
     int pos_x, pos_y;
     if (index_x == new_index_x)
     {
+        std::cout << "Torre: Pos : " << positionIndex.x << " " << positionIndex.y << " New Pos : " << new_index_x << " " << new_index_y << std::endl;
         //  CIMA ou BAIXO :
         if (index_y > new_index_y)
             for (int i = 1; i < index_y; i++) // index_y - i 
@@ -85,7 +104,10 @@ bool Torre::analisarMovimento(const sf::Vector2i& new_pos) const
                 if (index_y - i == new_index_y)
                     break;
                 else if (tab->getTabuleiro()[pos_y][pos_x] != nullptr)
+                {
+                    std::cout << "Torre: Encontrou uma peça em " << pos_x << " " << pos_y << " do tipo " << typeid(*tab->getTabuleiro()[pos_y][pos_x]).name() << std::endl;
                     return false;
+                }
             }
         //  BAIXO ou CIMA : 
         if (index_y < new_index_y)
@@ -98,13 +120,17 @@ bool Torre::analisarMovimento(const sf::Vector2i& new_pos) const
                 if (index_y + i == new_index_y)
                     break;
                 else if (tab->getTabuleiro()[pos_y][pos_x] != nullptr)
+                {
+                    std::cout << "Torre: Encontrou uma peça em " << pos_x << " " << pos_y << " do tipo " << typeid(*tab->getTabuleiro()[pos_y][pos_x]).name() << std::endl;
                     return false;
+                }
             }
     }
     // Segunda Regra : enquanto tiver casas nas laterais disponíveis sem nenhuma peça amiga ou inimiga, pode andar em qualquer uma -> VERTICAL
     //  ESQUERDA :
     else if (index_y == new_index_y)
     {
+        std::cout << "Torre: Pos : " << positionIndex.x << " " << positionIndex.y << " New Pos : " << new_index_x << " " << new_index_y << std::endl;
         if (index_x > new_index_x)
             for (int i = 1; i < index_x; i++) // index_x - i
             {
@@ -115,7 +141,10 @@ bool Torre::analisarMovimento(const sf::Vector2i& new_pos) const
                 if (index_x - i == new_index_x)
                     break;
                 else if (tab->getTabuleiro()[pos_y][pos_x] != nullptr)
+                {
+                    std::cout << "Torre: Encontrou uma peça em " << pos_x << " " << pos_y << " do tipo " << typeid(*tab->getTabuleiro()[pos_y][pos_x]).name() << std::endl;
                     return false;
+                }
             }
         //  DIREITA : 
         if (index_x < new_index_x)
@@ -128,14 +157,17 @@ bool Torre::analisarMovimento(const sf::Vector2i& new_pos) const
                 if (index_x + i == new_index_x)
                     break;
                 else if (tab->getTabuleiro()[pos_y][pos_x] != nullptr)
+                {
+                    std::cout << "Torre: Encontrou uma peça em " << pos_x << " " << pos_y << " do tipo " << typeid(*tab->getTabuleiro()[pos_y][pos_x]).name() << std::endl;
                     return false;
+                }
             }
     }
     else 
         return false;
     return true;
 }
-bool Bispo::analisarMovimento(const sf::Vector2i& new_pos) const 
+bool Bispo::analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const 
 {
     int index_x, index_y; bool isAdversario = isWhite != tab->brancasPrimeiro;
     int new_index_x, new_index_y; 
@@ -223,7 +255,7 @@ bool Bispo::analisarMovimento(const sf::Vector2i& new_pos) const
         return false;
     return true; 
 }
-bool Cavalo::analisarMovimento(const sf::Vector2i& new_pos) const  
+bool Cavalo::analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const  
 { 
     int index_x, index_y; bool isAdversario = isWhite != tab->brancasPrimeiro;
     int new_index_x, new_index_y;
@@ -280,12 +312,12 @@ bool Cavalo::analisarMovimento(const sf::Vector2i& new_pos) const
     }
     return false; 
 }
-bool Rainha::analisarMovimento(const sf::Vector2i& new_pos) const 
+bool Rainha::analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const 
 {
     // Analisando movimentos diagonais, horizontais e verticais da Peça
-    return Torre::analisarMovimento(new_pos) || Bispo::analisarMovimento(new_pos);
+    return Torre::analisarMovimento(tab, new_pos) || Bispo::analisarMovimento(tab, new_pos);
 }
-bool Rei::analisarMovimento(const sf::Vector2i& new_pos) const 
+bool Rei::analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const 
 { 
     int index_x, index_y; bool isAdversario = isWhite != tab->brancasPrimeiro;
     int new_index_x, new_index_y;
