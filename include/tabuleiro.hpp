@@ -1,23 +1,21 @@
 #ifndef TABULEIRO_H
 #define TABULEIRO_H
 
-#include "../include/I_UI.hpp"
+
 #include "../include/peças.hpp"
 
 class Peça;
-class Tabuleiro : public I_UI<sf::VertexArray>
+class Tabuleiro
 {
     private :
-        Peça*** tabuleiro;
-        const bool começouBrancas;
-	public :
-        const int tamanho_casas;
-		Tabuleiro(const int& tamanho, const bool& brancasPrimeiro);
-        Peça*** getTabuleiro();
-        bool addNewPos(int x, int y, bool isMoviment) override;
-        void newPosObject(int index_x, int index_y, sf::Vector2f new_pos, bool isMoviment);
-        void draw(sf::RenderWindow* window) override;
+        Peça* tabuleiro[8][8];
+    public:
+        bool brancasPrimeiro; 
+        int tamanho_casas;
+        Tabuleiro(const bool& brancasPrimeiro);
+        Tabuleiro(Peça* (*tabuleiro)[8], const bool& brancasPrimeiro);
+        Peça* (*getTabuleiro())[8];
+        void setTabuleiro(Peça* (*tabuleiro)[8]);
         ~Tabuleiro();
-        friend class Peça;
 };
 #endif

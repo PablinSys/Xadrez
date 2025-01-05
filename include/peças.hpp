@@ -1,79 +1,56 @@
 #ifndef PEÇAS_H
 #define PEÇAS_H
 
-#include <filesystem>
-#include "I_UI.hpp"
-#include "tabuleiro.hpp"
+#include <SFML/Graphics.hpp>
+#include <../include/tabuleiro.hpp>
 
 class Tabuleiro;
-class Peça : public I_UI<sf::Sprite> //classe abstrata
+class Peça //classe abstrata
 {
-	protected :
-		sf::Texture peça_img;
-		Tabuleiro* tab;
-		virtual bool analisarMovimento(const sf::Vector2i& new_pos)  = 0;
-	public : 
-		bool isBranco;
+	public :
+		bool isWhite;
 		sf::Vector2i positionIndex;
-		Peça(const std::filesystem::path& path_img, const sf::Vector2f& position, const sf::Vector2i indexPosition, Tabuleiro& tabuleiro, const bool& isBranco);
-		bool addNewPos(int x, int y, bool isMoviment) override;
-		~Peça();
+		sf::Vector2f positionUI;
+		Tabuleiro* tab;
+		Peça(const sf::Vector2i& positionIndex, Tabuleiro& tab, const bool& isWhite);
+		virtual bool analisarMovimento(const sf::Vector2i& new_pos) const = 0;
+		virtual ~Peça();
 };
 class Peao : public Peça
 {
-	protected :
-		bool analisarMovimento(const sf::Vector2i& new_pos)  override;
-	private :
-		bool primeiroLance = true;
 	public :
-		Peao(const std::filesystem::path& path_img, const sf::Vector2f& position, const sf::Vector2i indexPosition, Tabuleiro& tabuleiro, const bool& isBranco, const bool& primeiroLance = true);
+		bool primeiroLance;
+		Peao(const sf::Vector2i& positionIndex, Tabuleiro& tabuleiro, const bool& isWhite, bool primeiroLance);
+		bool analisarMovimento(const sf::Vector2i& new_pos) const override;
 };
 class Torre : virtual public Peça
 {
-	protected :
-		bool analisarMovimento(const sf::Vector2i& new_pos)  override;
-	private :
-		bool _; // migué
 	public :
-		Torre(const std::filesystem::path& path_img, const sf::Vector2f& position, const sf::Vector2i indexPosition, Tabuleiro& tabuleiro, const bool& isBranco);
+		Torre(const sf::Vector2i& positionIndex, Tabuleiro& tabuleiro, const bool& isWhite);
+		bool analisarMovimento(const sf::Vector2i& new_pos) const override;
 };
 class Cavalo : public Peça
 {
-	protected :
-		bool analisarMovimento(const sf::Vector2i& new_pos)  override;
 	public :
-		Cavalo(const std::filesystem::path& path_img, const sf::Vector2f& position, const sf::Vector2i indexPosition, Tabuleiro& tabuleiro, const bool& isBranco);
+		Cavalo(const sf::Vector2i& positionIndex, Tabuleiro& tabuleiro, const bool& isWhite);
+		bool analisarMovimento(const sf::Vector2i& new_pos) const override;
 };
 class Bispo : virtual public Peça
 {
-	protected :
-		bool analisarMovimento(const sf::Vector2i& new_pos)  override;
-	bool __; // migué
 	public :
-		Bispo(const std::filesystem::path& path_img, const sf::Vector2f& position, const sf::Vector2i indexPosition, Tabuleiro& tabuleiro, const bool& isBranco);
+		Bispo(const sf::Vector2i& positionIndex, Tabuleiro& tabuleiro, const bool& isWhite);
+		bool analisarMovimento(const sf::Vector2i& new_pos) const override;
 };
 class Rainha : public Bispo, public Torre
 {
-	protected :
-		bool analisarMovimento(const sf::Vector2i& new_pos)  override;
 	public :
-		Rainha(const std::filesystem::path& path_img, const sf::Vector2f& position, const sf::Vector2i indexPosition, Tabuleiro& tabuleiro, const bool& isBranco);
+		Rainha(const sf::Vector2i& positionIndex, Tabuleiro& tabuleiro, const bool& isWhite);
+		bool analisarMovimento(const sf::Vector2i& new_pos) const override;
 };
 class Rei : public Peça
 {
-	protected :
-		bool analisarMovimento(const sf::Vector2i& new_pos)  override;
 	public :
-		Rei(const std::filesystem::path& path_img, const sf::Vector2f& position, const sf::Vector2i indexPosition, Tabuleiro& tabuleiro, const bool& isBranco);
+		Rei(const sf::Vector2i& positionIndex, Tabuleiro& tabuleiro, const bool& isWhite);
+		bool analisarMovimento(const sf::Vector2i& new_pos) const override;
 };
-
-#include <memory>
-#include <string>
-#include <stdexcept>
-
-class PeçasInstances {
-public:
-    static std::unique_ptr<Peça> criarPeça(const std::type_info& tipo, const std::filesystem::path& caminho, const sf::Vector2f& pos, const sf::Vector2i& indexpos, Tabuleiro& tabuleiro, bool isWhite);
-};
-
 #endif
