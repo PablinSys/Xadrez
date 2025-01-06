@@ -1,2 +1,3 @@
 # Xadrez-
-Xadrez feito em C++
+Xadrez feito em C++ *EM DESENVOLVIMENTO
+
