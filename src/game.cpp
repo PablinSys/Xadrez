@@ -16,16 +16,37 @@ Game::Game(sf::RenderWindow* window)
 
 void Game::run()
 {
+    bool vez_jogador = tabuleiro->brancasPrimeiro;
+    bool vez_cpu = !tabuleiro->brancasPrimeiro;
     while (window->isOpen())
     {
         sf::Event event;
-        while (window->pollEvent(event))
+        while (window->pollEvent(event) && vez_jogador)
         {
             if (event.type == sf::Event::Closed)
                 window->close();
             else if (event.type == sf::Event::MouseButtonPressed)
                 if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-                    gameUI->OnMouseButtonLeftPressed(gameController);
+                {
+                    if (gameUI->OnMouseButtonLeftPressed(gameController))
+                    {
+                        vez_jogador = !vez_jogador;
+                        vez_cpu = !vez_cpu;
+                        std::cout << "--------------------------" << std::endl;
+                        if (gameController->analisarCheck(true))
+                        {
+                            std::cout << "CHECK" << std::endl;
+                        }
+                        std::cout << "--------------------------" << std::endl;
+                    }
+                }
+        }
+        if (!vez_jogador)
+        {
+            //CPU();
+            vez_jogador = !vez_jogador;
+            vez_cpu = !vez_cpu;
+            sf::sleep(sf::seconds(1));
         }
         gameUI->update(gameController);
         sf::sleep(sf::milliseconds(100));

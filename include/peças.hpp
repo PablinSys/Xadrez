@@ -53,5 +53,6 @@ class Rei : public Peça
 	public :
 		Rei(const std::filesystem::path& path_img, Tabuleiro& tab, const sf::Vector2i& positionIndex, const bool& isWhite);
 		bool analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const override;
+		bool isProtegido(Tabuleiro* tabuleiro, const bool& isJogador);
 };
 #endif

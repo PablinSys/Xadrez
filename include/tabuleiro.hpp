@@ -16,6 +16,7 @@ class Tabuleiro
         Tabuleiro(Peça* (*tabuleiro)[8], const bool& brancasPrimeiro);
         Peça* (*getTabuleiro())[8];
         void setTabuleiro(Peça* (*tabuleiro)[8]);
+        void moverPeça(sf::Vector2i peça_pos, sf::Vector2i new_pos);
         ~Tabuleiro();
 };
 #endif

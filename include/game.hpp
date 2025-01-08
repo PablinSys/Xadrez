@@ -6,12 +6,11 @@
 
 class Game 
 {
-    private:
+    public:
         Tabuleiro* tabuleiro;
         sf::RenderWindow* window;
         GameController* gameController;
         GameUI* gameUI;
-    public:
         Game(sf::RenderWindow* window);
         void run();
         ~Game() = default;

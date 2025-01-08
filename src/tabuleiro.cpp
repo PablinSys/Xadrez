@@ -1,6 +1,7 @@
 #include "../include/tabuleiro.hpp"
 #include "../include/peças.hpp"
 #include <iostream>
+#include <cassert>
 
 Tabuleiro::Tabuleiro(const bool& brancasPrimeiro, const float& tamanho_casas)
     : brancasPrimeiro(brancasPrimeiro), tamanho_casas(tamanho_casas)
@@ -61,18 +62,36 @@ Tabuleiro::Tabuleiro(Peça* (*tabuleiro)[8], const bool& brancasPrimeiro)
 {
     setTabuleiro(tabuleiro);
 }
-
 Peça* (*Tabuleiro::getTabuleiro())[8]
 {
     return tabuleiro;
 }
-
 void Tabuleiro::setTabuleiro(Peça* (*tabuleiro)[8])
 {
     for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
             this->tabuleiro[y][x] = *(tabuleiro[y] + x);
 }
+void Tabuleiro::moverPeça(sf::Vector2i peça_pos, sf::Vector2i new_pos)
+{
+    Peça* peça = &*tabuleiro[peça_pos.y][peça_pos.x];
+
+    if (Peao* peao = dynamic_cast<Peao*>(peça))
+        peao->primeiroLance = false;
+
+    peça->objectUI.setPosition( 
+    {
+        (float)new_pos.x * tamanho_casas + (tamanho_casas-60)/2 , 
+        (float)new_pos.y * tamanho_casas + (tamanho_casas-60)/2
+    });
+    peça->positionIndex = {new_pos.x, new_pos.y};
+
+    tabuleiro[new_pos.y][new_pos.x] = peça;
+    tabuleiro[peça_pos.y][peça_pos.x] = nullptr;
+
+    assert(tabuleiro[peça_pos.y][peça_pos.x] == nullptr);
+}
+
 Tabuleiro::~Tabuleiro()
 {
     for (int y = 0; y < 8; y++)

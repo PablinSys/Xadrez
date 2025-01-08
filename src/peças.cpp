@@ -86,13 +86,11 @@ bool Torre::analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const
         index_y = 7 - positionIndex.y;  
         new_index_y = 7 - new_index_y;
     }
-    std::cout << "Pos : " << positionIndex.x << " " << positionIndex.y << " New Pos : " << new_index_x << " " << new_index_y << std::endl;
     
     // Primeira regra : enquanto tiver casas na frente disponíveis sem nenhuma peça amiga ou inimiga, pode andar em qualquer uma -> HORIZONTAL
     int pos_x, pos_y;
     if (index_x == new_index_x)
     {
-        std::cout << "Torre: Pos : " << positionIndex.x << " " << positionIndex.y << " New Pos : " << new_index_x << " " << new_index_y << std::endl;
         //  CIMA ou BAIXO :
         if (index_y > new_index_y)
             for (int i = 1; i < index_y; i++) // index_y - i 
@@ -325,13 +323,6 @@ bool Rei::analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const
     index_x = positionIndex.x, index_y = positionIndex.y;
     new_index_x = (int)(new_pos.x / tab->tamanho_casas), new_index_y = (int)(new_pos.y / tab->tamanho_casas);
 
-    if (isAdversario) 
-    {
-        index_x = 7 - positionIndex.x, index_y = 7 - positionIndex.y;
-        new_index_x = 7 - new_index_x, new_index_y = 7 - new_index_y;
-    }
-
-
     // Primeira regra : pode se posicionar entre as casas ao redor do rei e sem posicionar nenhuma peça amiga
     int init_x = index_x-1, init_y = index_y-1;
     for (int i = 0; i < 3; i++)
@@ -344,4 +335,265 @@ bool Rei::analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const
                 return true;
         }
     return false; 
+}
+bool Rei::isProtegido(Tabuleiro* tabuleiro, const bool& isJogador)
+{
+    Peça* (*tab)[8] = tabuleiro->getTabuleiro();
+    int index_x = positionIndex.x, index_y = positionIndex.y;
+    if (!isJogador) index_y = 7 - index_y;
+    std::cout << "Pos REI : " << index_y << " " << index_x << " É " << (isWhite ? "BRANCO :" : "PRETO :") << std::endl;
+
+    // Analisar se nenhuma peça marcando diagonalmente o rei
+    //  DIAGONALMENTE A ESQUERDA E DIREITA SUPERIOR
+    
+    int pos_x, pos_y;
+    bool passouLimite1 = false;
+    bool passouLimite2 = false;
+    for (int y = 1; y < 8; y++)
+    {
+        if (isJogador) pos_x = index_x + y, pos_y = index_y - y;
+        else pos_x = index_x + y, pos_y = 7 - index_y + y;
+        
+        if (pos_x < 8 && pos_y >= 0 && pos_y < 8 && !passouLimite1)
+        {
+            if (tab[pos_y][pos_x] != nullptr)
+            {
+                if (tab[pos_y][pos_x]->isWhite != isJogador)
+                {
+                    if ((typeid(*tab[pos_y][pos_x]) == typeid(Peao) && y == 1) ||
+                        typeid(*tab[pos_y][pos_x]) == typeid(Bispo) || 
+                        typeid(*tab[pos_y][pos_x]) == typeid(Rainha))
+                    {
+                        std::cout << "Piece marking the king: " 
+                                  << typeid(*tab[pos_y][pos_x]).name() 
+                                  << " at position (" << pos_x << ", " 
+                                  << pos_y << ")" << std::endl;
+                        return false;
+                    }
+                    else 
+                        passouLimite1 = true;
+                }
+                else 
+                    passouLimite1 = true;
+            }
+        }
+        else passouLimite1 = true;
+
+        if (isJogador) pos_x = index_x - y, pos_y = index_y - y;
+        else pos_x = index_x - y, pos_y = 7 - index_y + y;
+
+        if (pos_x >= 0 && pos_y >= 0 && pos_y < 8 && !passouLimite2)
+        {
+            if (tab[pos_y][pos_x] != nullptr)
+            {
+                if (tab[pos_y][pos_x]->isWhite != isJogador)
+                {
+                    if ((typeid(*tab[pos_y][pos_x]) == typeid(Peao) && y == 1) ||
+                        typeid(*tab[pos_y][pos_x]) == typeid(Bispo) || 
+                        typeid(*tab[pos_y][pos_x]) == typeid(Rainha))
+                    {
+                        std::cout << "[DIAGONALMENTE A ESQUERDA E DIREITA SUPERIOR]Peça marcando o rei: " 
+                                  << typeid(*tab[pos_y][pos_x]).name() 
+                                  << " na posição (" << pos_x << ", " 
+                                  << pos_y << ")" << std::endl;
+                        return false;
+                    }
+                }
+            }
+        }
+        else if (passouLimite1) break;
+    }
+    //  DIAGONALMENTE A ESQUERDA E DIREITA SUPERIOR
+    passouLimite1 = false;
+    passouLimite2 = false;
+    for (int y = 1; y < index_y; y++)
+    {
+        if (isJogador) pos_x = index_x + y, pos_y = index_y - y;
+        else pos_x = index_x + y, pos_y = 7 - index_y + y;
+
+        if (pos_x < 8 && pos_x >= 0 && pos_y >= 0 && pos_y < 8 && !passouLimite1)
+            if (tab[pos_y][pos_x] != nullptr)
+            {
+                if (tab[pos_y][pos_x]->isWhite != isJogador)
+                {
+                    if ((typeid(*tab[pos_y][pos_x]) == typeid(Peao) && y == 1) ||
+                        typeid(*tab[pos_y][pos_x]) == typeid(Bispo) || 
+                        typeid(*tab[pos_y][pos_x]) == typeid(Rainha))
+                    {
+                        std::cout << "Piece marking the king: " 
+                                  << typeid(*tab[pos_y][pos_x]).name() 
+                                  << " at position (" << pos_x << ", " 
+                                  << pos_y << ")" << std::endl;
+                        return false;
+                    }
+                    else 
+                        passouLimite1 = true;
+                }
+                else passouLimite1 = true;
+            }
+        
+        if (isJogador) pos_x = index_x - y, pos_y = index_y - y;
+        else pos_x = index_x - y, pos_y = 7 - index_y + y;
+
+        if (pos_x >= 0 && pos_x < 8 &&  pos_y >= 0 && pos_y < 8 && !passouLimite2)
+            if (tab[pos_y][pos_x] != nullptr)
+            {
+                if (tab[pos_y][pos_x]->isWhite != isJogador)
+                {
+                    if ((typeid(*tab[pos_y][pos_x]) == typeid(Peao) && y == 1) ||
+                        typeid(*tab[pos_y][pos_x]) == typeid(Bispo) || 
+                        typeid(*tab[pos_y][pos_x]) == typeid(Rainha))
+                    {
+                        std::cout << "[DIAGONALMENTE A ESQUERDA E DIREITA SUPERIOR]Peça marcando o rei: " 
+                                  << typeid(*tab[pos_y][pos_x]).name() 
+                                  << " na posição (" << pos_x << ", " 
+                                  << pos_y << ")" << std::endl;
+                        return false;
+                    }
+                    else 
+                        passouLimite2 = true;
+                }
+                else passouLimite2 = true;
+            }
+        else if (passouLimite1) break;
+    }
+
+    // ANALISAR SE NENHUMA PECA MARCANDO HORIZONTALMENTE E VERTICALMENTE O REI
+    //  VERTICALMENTE ESQUERDA E DIREITA
+    passouLimite1 = false;
+    passouLimite2 = false;
+    for (int x = 1; x < index_x; x++)
+    {
+        if (isJogador) pos_x = index_x + x, pos_y = index_y;
+        else pos_x = index_x + x, pos_y = 7 - index_y;
+
+        if (pos_x < 8 && pos_x >= 0 && pos_y >= 0 && pos_y < 8 && !passouLimite1) 
+        {
+            if (tab[pos_y][pos_x] != nullptr) 
+            {
+                if (tab[pos_y][pos_x]->isWhite != isJogador) 
+                {
+                    if (typeid(*tab[pos_y][pos_x]) == typeid(Rainha) ||
+                        typeid(*tab[pos_y][pos_x]) == typeid(Torre)) 
+                    {
+                        std::cout << "Peça marcando o rei: "
+                                  << typeid(*tab[pos_y][pos_x]).name()
+                                  << " na posição (" << pos_x << ", "
+                                  << pos_y << ")" << std::endl;
+                        return false;
+                    }
+                    else 
+                        passouLimite1 = true;
+                } 
+                else 
+                    passouLimite1 = true;
+            }
+        } 
+
+        pos_x = index_x - x;
+
+        if (pos_x >= 0 && pos_y >= 0 && pos_y < 8 && !passouLimite2) 
+        {
+            if (tab[pos_y][pos_x] != nullptr) 
+            {
+                if (tab[pos_y][pos_x]->isWhite != isJogador) 
+                {
+                    if (typeid(*tab[pos_y][pos_x]) == typeid(Rainha) ||
+                        typeid(*tab[pos_y][pos_x]) == typeid(Torre)) 
+                    {
+                        std::cout << "Peça marcando o rei: "
+                                  << typeid(*tab[pos_y][pos_x]).name()
+                                  << " na posição (" << pos_x << ", "
+                                  << pos_y << ")" << std::endl;
+                        return false;
+                    }
+                    else 
+                        passouLimite2 = true;
+                } 
+                else 
+                    passouLimite2 = true;
+            }
+        } 
+        else if (passouLimite1 && passouLimite2) break;
+    }
+    //  HORIZONTALMENTE SUPERIOR E INFERIOR
+    passouLimite1 = false;
+    passouLimite2 = false;
+    for (int y = 1; y < index_y; y++)
+    {
+        if (isJogador) pos_x = index_x, pos_y = index_y + y;
+        else pos_x = index_x, pos_y = 7 - index_y - y;
+        
+        std::cout << "Pos 'peça' (" << pos_x << ", " << pos_y << ")" << std::endl;
+        if (passouLimite1) std::cout << "Passou do limite 1" << std::endl;
+
+        if (pos_y < 8 && pos_y >= 0 && pos_x >= 0 && pos_x < 8 && !passouLimite1)
+            if (tab[pos_y][pos_x] != nullptr)
+            {
+                if (tab[pos_y][pos_x]->isWhite != isJogador)
+                {
+                    if (typeid(*tab[pos_y][pos_x]) == typeid(Rainha) ||
+                        typeid(*tab[pos_y][pos_x]) == typeid(Torre))
+                    {
+                        std::cout << "Peça marcando o rei: " 
+                                  << typeid(*tab[pos_y][pos_x]).name() 
+                                  << " na posição (" << pos_x << ", " 
+                                  << pos_y << ")" << std::endl;
+                        return false;
+                    }
+                    else passouLimite1 = true;
+                }
+                else passouLimite1 = true;
+            }
+
+        if (isJogador) pos_y = index_y - y;
+        else pos_y = 7 - index_y + y;
+
+        std::cout << "Pos 'peça' (" << pos_x << ", " << pos_y << ")" << std::endl;
+        if (passouLimite2) std::cout << "Passou do limite 2" << std::endl;
+
+        if (pos_y >= 0 && pos_y < 8 && pos_x >= 0 && pos_x < 8 && !passouLimite2)
+            if (tab[pos_y][pos_x] != nullptr)
+            {
+                if (tab[pos_y][pos_x]->isWhite != isJogador)
+                {
+                    if (typeid(*tab[pos_y][pos_x]) == typeid(Rainha) ||
+                    typeid(*tab[pos_y][pos_x]) == typeid(Torre))
+                    {
+                        std::cout << "Peça marcando o rei: " 
+                                  << typeid(*tab[pos_y][pos_x]).name() 
+                                  << " na posição (" << pos_x << ", " 
+                                  << pos_y << ")" << std::endl;
+                        return false;
+                    }
+                    else passouLimite2 = true;
+                }
+                else passouLimite2 = true;
+            }
+        else if (passouLimite1 && passouLimite2) break;
+    }
+    // ANALISAR SE NENHUM CAVALO MARCA O REI
+    const std::pair<int, int> knight_moves[] = {
+        {-1, 2}, {1, 2}, {-1, -2}, {1, -2},
+        {2, 1}, {2, -1}, {-2, 1}, {-2, -1}
+    };
+    
+    for (const auto& move : knight_moves) {
+        pos_x = index_x + move.first;
+        pos_y = index_y + move.second;
+        
+        if (!isJogador) pos_y = 7 - index_y - move.second;
+        
+        if (pos_y >= 0 && pos_y < 8 && pos_x >= 0 && pos_x < 8) {
+            if (tab[pos_y][pos_x] != nullptr && typeid(*tab[pos_y][pos_x]) == typeid(Cavalo) &&
+                tab[pos_y][pos_x]->isWhite != isJogador) {
+                std::cout << "Cavalo marcando o rei: " << typeid(*tab[pos_y][pos_x]).name()
+                          << " na posição (" << pos_x << ", " << pos_y << ")"
+                          << " cor: " << (tab[pos_y][pos_x]->isWhite ? "Branco" : "Preto") << std::endl;
+                return false;
+            }
+        }
+    }
+     
+    return true;
 }
