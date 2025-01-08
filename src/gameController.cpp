@@ -10,6 +10,7 @@ GameController::GameController(Tabuleiro& tabuleiro, const float& tamanho)
 }
 bool GameController::analisarCheckmate(const bool& isJogador)
 {
+    /*
     int countChecks = 0;
     int countProteçao = 0;
     if (isJogador)
@@ -96,6 +97,7 @@ bool GameController::analisarCheckmate(const bool& isJogador)
         return true; 
     else if (countChecks == 1 && countProteçao == 4)
         return true;
+        */
     return false;
 
 }
@@ -104,18 +106,24 @@ bool GameController::analisarCheck(const bool& isWhite)
     if (isWhite == tabuleiro.brancasPrimeiro)
     {
         Rei* rei = dynamic_cast<Rei*>(&*tabuleiro.getTabuleiro()[posReiOponente.y][posReiOponente.x]);
-        if (!rei->isProtegido(&tabuleiro, false))
-            return true;
-        else 
+        if (rei->contarPecasMarcando(&tabuleiro, false) == 0)
             return false;
+        else 
+        {
+            //analisarCheckmate(false);
+            return true;
+        }
     }
     else
     {
         Rei* rei = dynamic_cast<Rei*>(&*tabuleiro.getTabuleiro()[posReiJogador.y][posReiJogador.x]);
-        if (!rei->isProtegido(&tabuleiro, true))
-            return true;
-        else 
+        if (rei->contarPecasMarcando(&tabuleiro, false) == 0)
             return false;
+        else 
+        {
+            //analisarCheckmate(false);
+            return true;
+        }
     }
 }
 int GameController::moverPeça(sf::Vector2i peça_pos, sf::Vector2f new_pos, bool emMovimento)
@@ -125,13 +133,16 @@ int GameController::moverPeça(sf::Vector2i peça_pos, sf::Vector2f new_pos, boo
         Peça* (*tab)[8] = this->tabuleiro.getTabuleiro();
         if (emMovimento)
             tab[peça_pos.y][peça_pos.x]->objectUI.setPosition({new_pos.x-20, new_pos.y-20});
+            
         else if (tab[peça_pos.y][peça_pos.x]->analisarMovimento(&tabuleiro, {(int)new_pos.x, (int)new_pos.y}))
         {
             int index_y = (int)(new_pos.y / tamanho_casas), index_x = (int)(new_pos.x / tamanho_casas);
             if (tab[index_y][index_x] != nullptr)
             {
+                std::cout << "Analisando cor da peça inimiga" << std::endl;
                 if (tab[index_y][index_x]->isWhite == tab[peça_pos.y][peça_pos.x]->isWhite)
                 {
+                    std::cout << "Peça amiga detectada" << std::endl;
                     tab[peça_pos.y][peça_pos.x]->objectUI.setPosition({
                         (float)(peça_pos.x * tamanho_casas + (tamanho_casas-60)/2), 
                         (float)(peça_pos.y * tamanho_casas + (tamanho_casas-60)/2)
@@ -139,10 +150,39 @@ int GameController::moverPeça(sf::Vector2i peça_pos, sf::Vector2f new_pos, boo
                     return - 1;
                 }
             }
-            if (Rei* rei = dynamic_cast<Rei*>(tab[posReiJogador.y][posReiJogador.x]))
+            if (Rei* rei = dynamic_cast<Rei*>(tab[peça_pos.y][peça_pos.x]->isWhite == tabuleiro.brancasPrimeiro ? 
+                                                tab[posReiJogador.y][posReiJogador.x] :
+                                                tab[posReiOponente.y][posReiOponente.x]))
             {
-                if (!rei->isProtegido(&tabuleiro, true))
+                std::cout << "Rei detectado" << std::endl;
+                Tabuleiro* test_tab = new Tabuleiro(tabuleiro.brancasPrimeiro, tamanho_casas);
+                test_tab->setTabuleiro(tab);
+                test_tab->moverPeça(peça_pos, {index_x, index_y});
+                if (typeid(*tab[peça_pos.y][peça_pos.x]) == typeid(Rei))
+                    rei = dynamic_cast<Rei*>(test_tab->getTabuleiro()[index_y][index_x]);
+
+                std::cout << "TESTANDO A PROTEÇÃO DO REI" << std::endl;
+                if (rei->contarPecasMarcando(test_tab, tab[peça_pos.y][peça_pos.x]->isWhite == tabuleiro.brancasPrimeiro) == 0)
                 {
+                    if (typeid(*tab[peça_pos.y][peça_pos.x]) == typeid(Rei))
+                    {
+                        std::cout << "Rei movido, mudando posição : (" << index_x << ", " << index_y << ")" << std::endl;
+                        if (tab[peça_pos.y][peça_pos.x]->isWhite == tabuleiro.brancasPrimeiro)
+                            posReiJogador = {index_x, index_y};
+                        else 
+                            posReiOponente = {index_x, index_y};
+                    }
+
+                    this->tabuleiro.moverPeça(peça_pos, {index_x, index_y});
+                    std::cout << "MOVIMENTO EFETUADO" << std::endl;
+                }
+                else 
+                {
+                    assert(test_tab->getTabuleiro()[index_y][index_x] != tab[index_y][index_x]);
+                    std::cout << "ERRO : Rei nao protegido -> ";
+                    if (test_tab->getTabuleiro()[index_y][index_x] != nullptr) std::cout << typeid(*test_tab->getTabuleiro()[index_y][index_x]).name() << std::endl;
+                    else 
+                        std::cout << "NULL" << std::endl;
                     tab[peça_pos.y][peça_pos.x]->objectUI.setPosition({
                         (float)(peça_pos.x * tamanho_casas + (tamanho_casas-60)/2), 
                         (float)(peça_pos.y * tamanho_casas + (tamanho_casas-60)/2)
@@ -150,17 +190,15 @@ int GameController::moverPeça(sf::Vector2i peça_pos, sf::Vector2f new_pos, boo
                     return - 1;
                 }
             }
-
-            if (typeid(*tab[peça_pos.y][peça_pos.x]) == typeid(Rei))
-                if (tab[peça_pos.y][peça_pos.x]->isWhite == tabuleiro.brancasPrimeiro)
-                    posReiJogador = {index_x, index_y};
-                else 
-                    posReiOponente = {index_x, index_y};
-
-            this->tabuleiro.moverPeça(peça_pos, {index_x, index_y});
+            else 
+            {
+                std::cout << "ERRO : Rei não encontrado : ( " << peça_pos.x << " , " << peça_pos.y << " )" << std::endl; 
+                return - 1;
+            }
         }
         else
         {
+            std::cout << "ERRO : Movimento nao permitido" << std::endl;
             tab[peça_pos.y][peça_pos.x]->objectUI.setPosition({
                 (float)(peça_pos.x * tamanho_casas + (tamanho_casas-60)/2), 
                 (float)(peça_pos.y * tamanho_casas + (tamanho_casas-60)/2)

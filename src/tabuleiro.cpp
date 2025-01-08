@@ -57,8 +57,8 @@ Tabuleiro::Tabuleiro(const bool& brancasPrimeiro, const float& tamanho_casas)
         }
     }
 }
-Tabuleiro::Tabuleiro(Peça* (*tabuleiro)[8], const bool& brancasPrimeiro)
-    : brancasPrimeiro(brancasPrimeiro)
+Tabuleiro::Tabuleiro(Peça* (*tabuleiro)[8], const bool& brancasPrimeiro, const float& tamanho_casas)
+    : brancasPrimeiro(brancasPrimeiro), tamanho_casas(tamanho_casas)
 {
     setTabuleiro(tabuleiro);
 }
@@ -70,7 +70,12 @@ void Tabuleiro::setTabuleiro(Peça* (*tabuleiro)[8])
 {
     for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
-            this->tabuleiro[y][x] = *(tabuleiro[y] + x);
+        {
+            if (tabuleiro[y][x] != nullptr)
+                this->tabuleiro[y][x] = tabuleiro[y][x]->clone();
+            else 
+                this->tabuleiro[y][x] = nullptr;
+        }
 }
 void Tabuleiro::moverPeça(sf::Vector2i peça_pos, sf::Vector2i new_pos)
 {

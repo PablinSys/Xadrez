@@ -28,6 +28,39 @@ Rainha::Rainha(const std::filesystem::path& path_img, Tabuleiro& tab , const sf:
      Peça(path_img, tab , positionIndex, isWhite), Bispo(path_img, tab , positionIndex, isWhite), Torre(path_img, tab , positionIndex, isWhite) {}
 Rei::Rei(const std::filesystem::path& path_img, Tabuleiro& tab , const sf::Vector2i& positionIndex, const bool& isWhite) : 
      Peça(path_img, tab , positionIndex, isWhite) {}
+
+
+Peça* Peao::clone() const
+{
+    return new Peao(*this);
+}
+
+Peça* Torre::clone() const
+{
+    return new Torre(*this);
+}
+
+Peça* Bispo::clone() const
+{
+    return new Bispo(*this);
+}
+
+Peça* Cavalo::clone() const
+{
+    return new Cavalo(*this);
+}
+
+Peça* Rainha::clone() const
+{
+    return new Rainha(*this);
+}
+
+Peça* Rei::clone() const
+{
+    return new Rei(*this);
+}
+
+
 bool Peao::analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const
 { 
     int index_x, index_y; bool isAdversario = isWhite != tab->brancasPrimeiro;
@@ -67,10 +100,17 @@ bool Peao::analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const
             std::cout << "Capturing piece : " << typeid(*tab->getTabuleiro()[pos_y][pos_x]).name() << std::endl;
         }
         else 
+        {
+            std::cout << "Unpermitted movement : " << new_index_x << " " << new_index_y << std::endl;
+            std::cout << "Conditions : " << index_x << " " << index_y << "≃≃" << new_index_x << " " << new_index_y << std::endl;
             return false;
+        }
     }
-    else 
+    else
+    { 
+        std::cout << "Invalid position : " << new_pos.x << " " << new_pos.y << std::endl;
         return false;
+    }
     return true; 
 }
 bool Torre::analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const 
@@ -336,12 +376,12 @@ bool Rei::analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const
         }
     return false; 
 }
-bool Rei::isProtegido(Tabuleiro* tabuleiro, const bool& isJogador)
+int Rei::contarPecasMarcando(Tabuleiro* tabuleiro, const bool& isJogador)
 {
     Peça* (*tab)[8] = tabuleiro->getTabuleiro();
+    int count = 0;
     int index_x = positionIndex.x, index_y = positionIndex.y;
     if (!isJogador) index_y = 7 - index_y;
-    std::cout << "Pos REI : " << index_y << " " << index_x << " É " << (isWhite ? "BRANCO :" : "PRETO :") << std::endl;
 
     // Analisar se nenhuma peça marcando diagonalmente o rei
     //  DIAGONALMENTE A ESQUERDA E DIREITA SUPERIOR
@@ -368,7 +408,8 @@ bool Rei::isProtegido(Tabuleiro* tabuleiro, const bool& isJogador)
                                   << typeid(*tab[pos_y][pos_x]).name() 
                                   << " at position (" << pos_x << ", " 
                                   << pos_y << ")" << std::endl;
-                        return false;
+                        count++;
+                        passouLimite1 = true;
                     }
                     else 
                         passouLimite1 = true;
@@ -392,16 +433,21 @@ bool Rei::isProtegido(Tabuleiro* tabuleiro, const bool& isJogador)
                         typeid(*tab[pos_y][pos_x]) == typeid(Bispo) || 
                         typeid(*tab[pos_y][pos_x]) == typeid(Rainha))
                     {
-                        std::cout << "[DIAGONALMENTE A ESQUERDA E DIREITA SUPERIOR]Peça marcando o rei: " 
+                        std::cout << "[DIAGONALMENTE A ESQUERDA E DIREITA SUPERIOR] Peça marcando o rei: " 
                                   << typeid(*tab[pos_y][pos_x]).name() 
                                   << " na posição (" << pos_x << ", " 
                                   << pos_y << ")" << std::endl;
-                        return false;
+                        count++;
+                        passouLimite2 = true;
                     }
+                    else 
+                        passouLimite2 = true;
                 }
+                else 
+                    passouLimite2 = true;
             }
         }
-        else if (passouLimite1) break;
+        else if (passouLimite1 && passouLimite2) break;
     }
     //  DIAGONALMENTE A ESQUERDA E DIREITA SUPERIOR
     passouLimite1 = false;
@@ -424,7 +470,8 @@ bool Rei::isProtegido(Tabuleiro* tabuleiro, const bool& isJogador)
                                   << typeid(*tab[pos_y][pos_x]).name() 
                                   << " at position (" << pos_x << ", " 
                                   << pos_y << ")" << std::endl;
-                        return false;
+                        count++;
+                        passouLimite1 = true;
                     }
                     else 
                         passouLimite1 = true;
@@ -448,14 +495,15 @@ bool Rei::isProtegido(Tabuleiro* tabuleiro, const bool& isJogador)
                                   << typeid(*tab[pos_y][pos_x]).name() 
                                   << " na posição (" << pos_x << ", " 
                                   << pos_y << ")" << std::endl;
-                        return false;
+                        count++;
+                        passouLimite2 = true;
                     }
                     else 
                         passouLimite2 = true;
                 }
                 else passouLimite2 = true;
             }
-        else if (passouLimite1) break;
+        else if (passouLimite1 && passouLimite2) break;
     }
 
     // ANALISAR SE NENHUMA PECA MARCANDO HORIZONTALMENTE E VERTICALMENTE O REI
@@ -480,7 +528,8 @@ bool Rei::isProtegido(Tabuleiro* tabuleiro, const bool& isJogador)
                                   << typeid(*tab[pos_y][pos_x]).name()
                                   << " na posição (" << pos_x << ", "
                                   << pos_y << ")" << std::endl;
-                        return false;
+                        count++;
+                        passouLimite1 = true;
                     }
                     else 
                         passouLimite1 = true;
@@ -505,7 +554,8 @@ bool Rei::isProtegido(Tabuleiro* tabuleiro, const bool& isJogador)
                                   << typeid(*tab[pos_y][pos_x]).name()
                                   << " na posição (" << pos_x << ", "
                                   << pos_y << ")" << std::endl;
-                        return false;
+                        count++;
+                        passouLimite2 = true;
                     }
                     else 
                         passouLimite2 = true;
@@ -524,9 +574,6 @@ bool Rei::isProtegido(Tabuleiro* tabuleiro, const bool& isJogador)
         if (isJogador) pos_x = index_x, pos_y = index_y + y;
         else pos_x = index_x, pos_y = 7 - index_y - y;
         
-        std::cout << "Pos 'peça' (" << pos_x << ", " << pos_y << ")" << std::endl;
-        if (passouLimite1) std::cout << "Passou do limite 1" << std::endl;
-
         if (pos_y < 8 && pos_y >= 0 && pos_x >= 0 && pos_x < 8 && !passouLimite1)
             if (tab[pos_y][pos_x] != nullptr)
             {
@@ -539,7 +586,8 @@ bool Rei::isProtegido(Tabuleiro* tabuleiro, const bool& isJogador)
                                   << typeid(*tab[pos_y][pos_x]).name() 
                                   << " na posição (" << pos_x << ", " 
                                   << pos_y << ")" << std::endl;
-                        return false;
+                        count++;
+                        passouLimite1 = true;
                     }
                     else passouLimite1 = true;
                 }
@@ -548,9 +596,6 @@ bool Rei::isProtegido(Tabuleiro* tabuleiro, const bool& isJogador)
 
         if (isJogador) pos_y = index_y - y;
         else pos_y = 7 - index_y + y;
-
-        std::cout << "Pos 'peça' (" << pos_x << ", " << pos_y << ")" << std::endl;
-        if (passouLimite2) std::cout << "Passou do limite 2" << std::endl;
 
         if (pos_y >= 0 && pos_y < 8 && pos_x >= 0 && pos_x < 8 && !passouLimite2)
             if (tab[pos_y][pos_x] != nullptr)
@@ -564,7 +609,8 @@ bool Rei::isProtegido(Tabuleiro* tabuleiro, const bool& isJogador)
                                   << typeid(*tab[pos_y][pos_x]).name() 
                                   << " na posição (" << pos_x << ", " 
                                   << pos_y << ")" << std::endl;
-                        return false;
+                        count++;
+                        passouLimite2 = true;
                     }
                     else passouLimite2 = true;
                 }
@@ -590,10 +636,10 @@ bool Rei::isProtegido(Tabuleiro* tabuleiro, const bool& isJogador)
                 std::cout << "Cavalo marcando o rei: " << typeid(*tab[pos_y][pos_x]).name()
                           << " na posição (" << pos_x << ", " << pos_y << ")"
                           << " cor: " << (tab[pos_y][pos_x]->isWhite ? "Branco" : "Preto") << std::endl;
-                return false;
+                count++;
             }
         }
     }
-     
-    return true;
+    
+    return count;
 }

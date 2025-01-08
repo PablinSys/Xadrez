@@ -19,7 +19,7 @@ class GameController
         Peça* (*getTabuleiro())[8];
         bool analisarEmpate();
         bool analisarCheck(const bool& isWhite);
-        bool analisarCheckmate(const bool& isWhite); // responsavel por verificar se o rei esta em checkmate, testando todos os movimentos possiveis do rei para ver se ele esta em check todas
+        bool analisarCheckmate(const bool& isWhite); // responsavel por verificar se o rei esta em checkmate, testando todos os movimentos possiveis das peças para ver se ele esta em check todas
         ~GameController() = default;
 };
 
