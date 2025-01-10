@@ -36,6 +36,11 @@ void Game::run()
                         if (gameController->analisarCheck(true))
                         {
                             std::cout << "CHECK" << std::endl;
+                            if (gameController->analisarCheckmate(!true))
+                            {
+                                std::cout << "CHECKMATE!!!!\nVITORIA DO JOGADOR" << std::endl;
+                                break;
+                            }
                         }
                         std::cout << "--------------------------" << std::endl;
                     }

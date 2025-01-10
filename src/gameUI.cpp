@@ -1,6 +1,5 @@
 #include "../include/gameUI.hpp"
 #include "../include/gameController.hpp"
-#include "../include/array.hpp"
 #include <SFML/System.hpp>
 #include <filesystem>
 #include <iostream>

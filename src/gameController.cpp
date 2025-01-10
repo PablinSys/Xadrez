@@ -8,98 +8,55 @@ GameController::GameController(Tabuleiro& tabuleiro, const float& tamanho)
     posReiJogador = sf::Vector2i(4, 7);
     posReiOponente = sf::Vector2i(4, 0);
 }
-bool GameController::analisarCheckmate(const bool& isJogador)
+std::vector<Jogada> GameController::getPossiveisMovimentos(Tabuleiro& tab, const bool& isWhite)
 {
-    /*
-    int countChecks = 0;
-    int countProteçao = 0;
-    if (isJogador)
+    std::vector<Jogada> movimentos;
+    for (int y = 0; y < 8; y++)
     {
-        Rei* rei = dynamic_cast<Rei*>(&*tabuleiro.getTabuleiro()[posReiJogador.y][posReiJogador.x]);
-        int index_x = posReiJogador.x, index_y = posReiJogador.y;
-        int init_x = index_x-1, init_y = index_y-1;
-        for (int y = 0; y < 3; y++)
-            for (int x = 0; x < 3; x++)
+        for (int x = 0; x < 8; x++)
+        {
+            if (tab.getTabuleiro()[y][x] != nullptr && tab.getTabuleiro()[y][x]->isWhite == isWhite)
             {
-                if (init_x + x < 8 && init_y + y < 8 && init_x + x >= 0 && init_y + y >= 0)
-                {
-                    //std::cout << "Pos Possible rei(jogador) : " << init_x + x << " " << init_y + y << std::endl;
-                    if (tabuleiro.getTabuleiro()[init_y + y][init_x + x] == nullptr)
-                    {
-                        rei->positionIndex = {init_x + x, init_y + y};
-                        if (rei->isProtegido(&tabuleiro, true))
-                        {
-                            //gameUI->PrintMessage("YOU WIN!");
-                            return false;
-                        }
-                        else
-                            countChecks++;
-                    }
-                    else if (tabuleiro.getTabuleiro()[init_y + y][init_x + x]->isWhite != rei->isWhite ||
-                            typeid(*tabuleiro.getTabuleiro()[init_y + y][init_x + x]) == typeid(Rei))
-                    {
-                        rei->positionIndex = {init_x + x, init_y + y};
-                        if (rei->isProtegido(&tabuleiro, true))
-                        {
-                            //gameUI->PrintMessage("YOU WIN!");
-                            return false;
-                        }
-                        else
-                            countChecks++;
-                    }
-                    else 
-                        countProteçao++;
-                }
+                std::vector<Jogada> movimentos_pecas = tab.getTabuleiro()[y][x]->movimentosPossiveis(&tab);
+                movimentos.insert(movimentos.end(), movimentos_pecas.begin(), movimentos_pecas.end());
             }
+        }
     }
-    else
+    return movimentos;
+}
+bool GameController::analisarCheckmate(const bool& isWhite)
+{
+    std::vector<Jogada> movimentos = getPossiveisMovimentos(tabuleiro, isWhite);
+    Rei* rei = dynamic_cast<Rei*>(tabuleiro.brancasPrimeiro == isWhite ? &*tabuleiro.getTabuleiro()[posReiJogador.y][posReiJogador.x] : 
+                                                                        &*tabuleiro.getTabuleiro()[posReiOponente.y][posReiOponente.x]);
+    Tabuleiro* test_tab = new Tabuleiro(tabuleiro.brancasPrimeiro, tamanho_casas);
+    for (Jogada& movimento : movimentos)
     {
-        Rei* rei = dynamic_cast<Rei*>(&*tabuleiro.getTabuleiro()[posReiOponente.y][posReiOponente.x]);
-        int index_x = posReiOponente.x, index_y = posReiOponente.y;
-        int init_x = index_x-1, init_y = index_y-1;
-        for (int y = 0; y < 3; y++)
-            for (int x = 0; x < 3; x++)
-            {
-                if (init_x + x < 8 && init_y + y < 8 && init_x + x >= 0 && init_y + y >= 0)
-                {
-                    std::cout << "Pos Possible rei(oponente) : " << init_x + x << " " << init_y + y << std::endl;
-                    
-                    if (tabuleiro.getTabuleiro()[init_y + y][init_x + x] == nullptr)
-                    {
-                        rei->positionIndex = {init_x + x, init_y + y};
-                        if (rei->isProtegido(&tabuleiro, false))
-                        {
-                            //gameUI->PrintMessage("YOU WIN!");
-                            return false;
-                        }
-                        else
-                            countChecks++;
-                    }
-                    else if (tabuleiro.getTabuleiro()[init_y + y][init_x + x]->isWhite != rei->isWhite ||
-                            typeid(*tabuleiro.getTabuleiro()[init_y + y][init_x + x]) == typeid(Rei))
-                    {
-                        std::cout << "Posição de analise : " << init_x + x << " " << init_y + y << " , tipo : " << (typeid(*tabuleiro.getTabuleiro()[init_y + y][init_x + x]) == typeid(Rei) ? "Rei" : "Outra") << std::endl;
-                        rei->positionIndex = {init_x + x, init_y + y};
-                        if (rei->isProtegido(&tabuleiro, false))
-                        {
-                            //gameUI->PrintMessage("YOU WIN!");
-                            return false;
-                        }
-                        else
-                            countChecks++;
-                    }
-                    else 
-                        countProteçao++;
-                }
-            }
-    }
-    if (countChecks > 1)
-        return true; 
-    else if (countChecks == 1 && countProteçao == 4)
-        return true;
-        */
-    return false;
+        if (movimento.new_pos == (tabuleiro.brancasPrimeiro == isWhite ? posReiJogador : posReiOponente))
+            continue;
 
+        // Copiar tabuleiro
+        test_tab->setTabuleiro(tabuleiro.getTabuleiro());
+        // Mover peça
+        test_tab->moverPeça(movimento.peça_pos, movimento.new_pos);
+
+        // Verificar se a peça movida é o Rei
+        auto& peça = test_tab->getTabuleiro()[movimento.peça_pos.y][movimento.peça_pos.x];
+
+        if (peça != nullptr && typeid(*peça) == typeid(Rei)) {
+            rei = dynamic_cast<Rei*>(test_tab->getTabuleiro()[movimento.new_pos.y][movimento.new_pos.x]);
+        }
+
+        // Verificar se o Rei esta em check
+        //std::cout << "\x1B[2J\x1B[H"; // clear terminal
+        if (rei->contarPecasMarcando(test_tab, isWhite) == 0)
+        {
+            std::cout << "Movimento que evita o checkmate " << " em (" << movimento.peça_pos.x << ", " << movimento.peça_pos.y << ") para (" << movimento.new_pos.x << ", " << movimento.new_pos.y << std::endl;
+            delete test_tab;
+            return false;
+        }
+    }
+    return true;
 }
 bool GameController::analisarCheck(const bool& isWhite)
 {

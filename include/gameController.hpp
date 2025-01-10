@@ -1,9 +1,9 @@
 #ifndef GAME_CONTROL_H
 #define GAME_CONTROL_H
 
+#include <array>
 #include "../include/tabuleiro.hpp"
 #include "../include/structs.hpp"
-#include "../include/array.hpp"
 
 class Tabuleiro;
 class GameController
@@ -12,7 +12,7 @@ class GameController
         float tamanho_casas;
         sf::Vector2i posReiJogador, posReiOponente;
         Tabuleiro tabuleiro;
-        //Array<Jogada, 1> getPossiveisMovimentos(Peça* peça);
+        std::vector<Jogada> getPossiveisMovimentos(Tabuleiro& tab, const bool& isWhite);
     public:
         GameController(Tabuleiro& tabuleiro, const float& tamanho);
         int moverPeça(sf::Vector2i peça_pos, sf::Vector2f new_pos, bool emMovimento);

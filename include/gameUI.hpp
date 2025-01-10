@@ -2,7 +2,6 @@
 #define GAME_UI_H
 
 #include <SFML/Graphics.hpp>
-#include "../include/array.hpp"
 #include "../include/tabuleiro.hpp"
 
 class Tabuleiro;
