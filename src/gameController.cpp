@@ -27,11 +27,13 @@ std::vector<Jogada> GameController::getPossiveisMovimentos(Tabuleiro& tab, const
 bool GameController::analisarCheckmate(const bool& isWhite)
 {
     std::vector<Jogada> movimentos = getPossiveisMovimentos(tabuleiro, isWhite);
-    Rei* rei = dynamic_cast<Rei*>(tabuleiro.brancasPrimeiro == isWhite ? &*tabuleiro.getTabuleiro()[posReiJogador.y][posReiJogador.x] : 
-                                                                        &*tabuleiro.getTabuleiro()[posReiOponente.y][posReiOponente.x]);
+    Rei* rei;
     Tabuleiro* test_tab = new Tabuleiro(tabuleiro.brancasPrimeiro, tamanho_casas);
     for (Jogada& movimento : movimentos)
     {
+        rei = dynamic_cast<Rei*>(tabuleiro.brancasPrimeiro == isWhite ? &*tabuleiro.getTabuleiro()[posReiJogador.y][posReiJogador.x] : 
+                                                                        &*tabuleiro.getTabuleiro()[posReiOponente.y][posReiOponente.x]);
+
         if (movimento.new_pos == (tabuleiro.brancasPrimeiro == isWhite ? posReiJogador : posReiOponente))
             continue;
 
@@ -41,17 +43,32 @@ bool GameController::analisarCheckmate(const bool& isWhite)
         test_tab->moverPeça(movimento.peça_pos, movimento.new_pos);
 
         // Verificar se a peça movida é o Rei
-        auto& peça = test_tab->getTabuleiro()[movimento.peça_pos.y][movimento.peça_pos.x];
+        auto& peça = tabuleiro.getTabuleiro()[movimento.peça_pos.y][movimento.peça_pos.x];
 
         if (peça != nullptr && typeid(*peça) == typeid(Rei)) {
+            std::cout << "Nova posição do Rei: (" << movimento.new_pos.x << ", " << movimento.new_pos.y << ")" << std::endl;
             rei = dynamic_cast<Rei*>(test_tab->getTabuleiro()[movimento.new_pos.y][movimento.new_pos.x]);
         }
 
         // Verificar se o Rei esta em check
         //std::cout << "\x1B[2J\x1B[H"; // clear terminal
+        std::cerr << "Debug: Movimento (" << movimento.peça_pos.x << ", " << movimento.peça_pos.y 
+                  << ") to (" << movimento.new_pos.x << ", " << movimento.new_pos.y << ")" << std::endl;
+        for (int y = 0; y < 8; y++)
+        {
+            for (int x = 0; x < 8; x++)
+            {
+                if (test_tab->getTabuleiro()[y][x] != nullptr)
+                    std::cerr << (test_tab->getTabuleiro()[y][x]->isWhite ? "W" : "B") <<  typeid(*test_tab->getTabuleiro()[y][x]).name()[1] << " ";
+                else
+                    std::cerr << "__ ";
+            }
+            std::cerr << std::endl;
+        }
+        std::cerr << std::endl;
         if (rei->contarPecasMarcando(test_tab, isWhite) == 0)
         {
-            std::cout << "Movimento que evita o checkmate " << " em (" << movimento.peça_pos.x << ", " << movimento.peça_pos.y << ") para (" << movimento.new_pos.x << ", " << movimento.new_pos.y << std::endl;
+            std::cout << "Movimento que evita o checkmate " << " em (" << movimento.peça_pos.x << ", " << movimento.peça_pos.y << ") para (" << movimento.new_pos.x << ", " << movimento.new_pos.y << ")" << std::endl;
             delete test_tab;
             return false;
         }
@@ -144,6 +161,7 @@ int GameController::moverPeça(sf::Vector2i peça_pos, sf::Vector2f new_pos, boo
                         (float)(peça_pos.x * tamanho_casas + (tamanho_casas-60)/2), 
                         (float)(peça_pos.y * tamanho_casas + (tamanho_casas-60)/2)
                     });
+                    delete test_tab;
                     return - 1;
                 }
             }
