@@ -1,5 +1,6 @@
 #include "../include/gameUI.hpp"
 #include "../include/gameController.hpp"
+#include "../include/algoritmo.hpp"
 #include <SFML/System.hpp>
 #include <filesystem>
 #include <iostream>
@@ -44,7 +45,7 @@ void GameUI::update(GameController* gameC)
         renderTab();
 
     window->clear(sf::Color::Black);
-    Peça* (*peças)[8] = gameC->getTabuleiro();
+    auto peças = gameC->tabuleiro.getTabuleiro();
     for (int i = 0; i < 64; i++)
         window->draw(tabuleiroUI[i]);
     for (int y = 0; y < 8; y++)
@@ -63,12 +64,7 @@ bool GameUI::OnMouseButtonLeftPressed(GameController* gameC)
         gameC->moverPeça({pos_x, pos_y}, {(float) sf::Mouse::getPosition(*window).x, (float) sf::Mouse::getPosition(*window).y}, sf::Mouse::isButtonPressed(sf::Mouse::Left));
         update(gameC);
 	}
-    int result = gameC->moverPeça({pos_x, pos_y}, {(float) sf::Mouse::getPosition(*window).x, (float) sf::Mouse::getPosition(*window).y}, sf::Mouse::isButtonPressed(sf::Mouse::Left));
-    update(gameC);
-    if (result >= 0)
-        return true;
-    else 
-        return false;
+    return gameC->moverPeça({pos_x, pos_y}, {(float) sf::Mouse::getPosition(*window).x, (float) sf::Mouse::getPosition(*window).y}, sf::Mouse::isButtonPressed(sf::Mouse::Left));
 }
 void GameUI::OnMouseButtonLeftClicked(GameController* gameC)
 {

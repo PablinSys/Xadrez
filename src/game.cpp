@@ -1,4 +1,5 @@
 #include "../include/game.hpp"
+#include "../include/bot.hpp"
 #include <iostream>
 
 Game::Game(sf::RenderWindow* window) 
@@ -18,6 +19,7 @@ void Game::run()
 {
     bool vez_jogador = tabuleiro->brancasPrimeiro;
     bool vez_cpu = !tabuleiro->brancasPrimeiro;
+    Bot CPU = Bot(*this);
     while (window->isOpen())
     {
         sf::Event event;
@@ -30,28 +32,42 @@ void Game::run()
                 {
                     if (gameUI->OnMouseButtonLeftPressed(gameController))
                     {
+                        gameUI->update(gameController);
+                        std::cout << "--------------------------" << std::endl;
+                        if (GameController::getPossiveisMovimentos(gameController->tabuleiro, false).size() < 10)
+                            if (gameController->analisarCheck(true))
+                            {
+                                std::cout << "CHECK" << std::endl;
+                                if (gameController->analisarCheckmate(!true))
+                                {
+                                    std::cout << "MOVIMENTOS POSSIVEIS DO OPONENTE: " << GameController::getPossiveisMovimentos(gameController->tabuleiro, false).size() << std::endl;
+                                    std::cout << "CHECKMATE!!!!\nVITORIA DO JOGADOR" << std::endl;
+                                    window->close();
+                                    break;
+                                }
+                            }
                         vez_jogador = !vez_jogador;
                         vez_cpu = !vez_cpu;
-                        std::cout << "--------------------------" << std::endl;
-                        if (gameController->analisarCheck(true))
-                        {
-                            std::cout << "CHECK" << std::endl;
-                            if (gameController->analisarCheckmate(!true))
-                            {
-                                std::cout << "CHECKMATE!!!!\nVITORIA DO JOGADOR" << std::endl;
-                                break;
-                            }
-                        }
                         std::cout << "--------------------------" << std::endl;
                     }
                 }
         }
         if (!vez_jogador)
         {
-            //CPU();
+            CPU.jogar();
+            if (GameController::getPossiveisMovimentos(gameController->tabuleiro, true).size() < 20)
+                if (gameController->analisarCheck(false))
+                {
+                    std::cout << "VOCÊ LEVOU CHECK" << std::endl;
+                    if (gameController->analisarCheckmate(true))
+                    {
+                        std::cout << "CHECKMATE??!!\nVITORIA DA IA" << std::endl;
+                        window->close();
+                        break;
+                    }
+                }
             vez_jogador = !vez_jogador;
             vez_cpu = !vez_cpu;
-            sf::sleep(sf::seconds(1));
         }
         gameUI->update(gameController);
         sf::sleep(sf::milliseconds(100));

@@ -6,10 +6,14 @@
 Tabuleiro::Tabuleiro(const bool& brancasPrimeiro, const float& tamanho_casas)
     : brancasPrimeiro(brancasPrimeiro), tamanho_casas(tamanho_casas)
 {
+    tabuleiro.resize(8);
     for (int y = 0; y < 8; y++)
+    {
+        tabuleiro[y].resize(8);
         for (int x = 0; x < 8; x++)
             tabuleiro[y][x] = nullptr;
-    
+    }
+
     // inicializando o tabuleiro
     for (int y = 0; y < 8; y++)
     {
@@ -57,25 +61,24 @@ Tabuleiro::Tabuleiro(const bool& brancasPrimeiro, const float& tamanho_casas)
         }
     }
 }
-Tabuleiro::Tabuleiro(Peça* (*tabuleiro)[8], const bool& brancasPrimeiro, const float& tamanho_casas)
-    : brancasPrimeiro(brancasPrimeiro), tamanho_casas(tamanho_casas)
+Tabuleiro::Tabuleiro(const Tabuleiro& other)
+    : brancasPrimeiro(other.brancasPrimeiro), tamanho_casas(other.tamanho_casas)
 {
-    setTabuleiro(tabuleiro);
+    tabuleiro.resize(8);
+    for (int y = 0; y < 8; y++) {
+        tabuleiro[y].resize(8);
+        for (int x = 0; x < 8; x++) {
+            if (other.tabuleiro[y][x])
+                tabuleiro[y][x] = other.tabuleiro[y][x]->clone(); // Cria uma nova peça
+            else
+                tabuleiro[y][x] = nullptr;
+        }
+    }
 }
-Peça* (*Tabuleiro::getTabuleiro())[8]
+
+std::vector<std::vector<Peça*>> Tabuleiro::getTabuleiro() const
 {
     return tabuleiro;
-}
-void Tabuleiro::setTabuleiro(Peça* (*tabuleiro)[8])
-{
-    for (int y = 0; y < 8; y++)
-        for (int x = 0; x < 8; x++)
-        {
-            if (tabuleiro[y][x] != nullptr)
-                this->tabuleiro[y][x] = tabuleiro[y][x]->clone();
-            else 
-                this->tabuleiro[y][x] = nullptr;
-        }
 }
 void Tabuleiro::moverPeça(sf::Vector2i peça_pos, sf::Vector2i new_pos)
 {
@@ -89,14 +92,24 @@ void Tabuleiro::moverPeça(sf::Vector2i peça_pos, sf::Vector2i new_pos)
         (float)new_pos.x * tamanho_casas + (tamanho_casas-60)/2 , 
         (float)new_pos.y * tamanho_casas + (tamanho_casas-60)/2
     });
-    peça->positionIndex = {new_pos.x, new_pos.y};
+    peça->positionIndex = new_pos;
 
     tabuleiro[new_pos.y][new_pos.x] = peça;
     tabuleiro[peça_pos.y][peça_pos.x] = nullptr;
-
-    assert(tabuleiro[peça_pos.y][peça_pos.x] == nullptr);
 }
-
+sf::Vector2i Tabuleiro::getReiPosition(Tabuleiro* tabuleiro, const bool& isWhite)
+{
+    for (const auto& y : tabuleiro->tabuleiro)
+        for (const auto& x : y)
+        {
+            if (x == nullptr)
+                continue;
+            if (Rei* rei = dynamic_cast<Rei*>(x))
+                if (rei->isWhite == isWhite)
+                    return rei->positionIndex;
+        }
+    throw std::runtime_error("Erro: Rei nao encontrado");
+}
 Tabuleiro::~Tabuleiro()
 {
     for (int y = 0; y < 8; y++)

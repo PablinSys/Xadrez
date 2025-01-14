@@ -33,16 +33,14 @@ Peça* (*convert_string_list_to_board_(const std::array<std::array<std::string, 
                 case 'P':
                     board[y][x] = new Peao(isWhite, sf::Vector2i(x, y), isWhite ? y == 6 : y == 1);
                     break; 
+                case 'Q':
+                    board[y][x] = new Rainha(isWhite, sf::Vector2i(x, y));
+                    break;
+                case 'R':
+                    board[y][x] = new Rei(isWhite, sf::Vector2i(x, y));
+                    break;
                 default:
-                    if (tab[y][x].length() > 2)
-                    {
-                        if (tab[y][x][2] == 'E')
-                            board[y][x] = new Rei(isWhite, sf::Vector2i(x, y));
-                        else if (tab[y][x][2] == 'A')
-                            board[y][x] = new Rainha(isWhite, sf::Vector2i(x, y));
-                    }
-                    else 
-                        board[y][x] = nullptr;
+                    board[y][x] = nullptr;
                     break;
                 }
         }
@@ -161,7 +159,7 @@ void TestarMovimentos()
         { " ", " ", " ", " ", " ", " ", " ", " " },
         { " ", " ", " ", " ", " ", " ", " ", " " },
         { " ", " ", " ", " ", " ", " ", " ", " " },
-        { " ", " ", " ", " ", "WRE", " ", " ", " " },
+        { " ", " ", " ", " ", "WR", " ", " ", " " },
         { " ", " ", " ", " ", " ", " ", " ", " " },
         { " ", " ", " ", " ", " ", " ", " ", " " },
         { " ", " ", " ", " ", " ", " ", " ", " " }
@@ -178,7 +176,7 @@ void TestarMovimentos()
         { " ", " ", " ", " ", " ", " ", " ", " " },
         { " ", " ", " ", " ", " ", " ", " ", " " },
         { " ", " ", " ", " ", "WP", " ", " ", " " },
-        { " ", " ", " ", "WP", "WRE", "WP", " ", " " },
+        { " ", " ", " ", "WP", "WR", "WP", " ", " " },
         { " ", " ", " ", " ", "WP", " ", " ", " " },
         { " ", " ", " ", " ", " ", " ", " ", " " },
         { " ", " ", " ", " ", " ", " ", " ", " " }
@@ -187,6 +185,23 @@ void TestarMovimentos()
     tab = new Tabuleiro(board, true, 100);
     movimentos = GameController::getPossiveisMovimentos(*tab, true);
     assert(movimentos.size() == 2+2+3);
+    system("clear");
+
+        tabuleiro = 
+    {{
+      { " ", " ", " ", " ", " ", " ", "BP", "BP" },
+     { " ", " ", " ", " ", " ", "BP", "BR", "BP" },
+        { " ", " ", " ", " ", " ", " ", " ", " " },
+        { " ", " ", " ", " ", " ", " ", " ", " " },
+        { " ", " ", " ", " ", " ", " ", " ", " " },
+        { " ", " ", " ", " ", " ", " ", " ", " " },
+        { " ", " ", " ", " ", " ", " ", " ", " " },
+        { " ", " ", " ", " ", " ", " ", " ", " " }
+    }};
+    board = convert_string_list_to_board_(tabuleiro);
+    tab = new Tabuleiro(board, true, 100);
+    movimentos = GameController::getPossiveisMovimentos(*tab, false);
+    assert(movimentos.size() == 2+2+4);
     system("clear");
 
     tabuleiro = 
@@ -198,7 +213,7 @@ void TestarMovimentos()
         { " ", " ", " ", " ", " ", " ", " ", " " },
         { " ", " ", " ", " ", " ", " ", " ", " " },
         { " ", " ", " ", " ", " ", " ", " ", " " },
-        { " ", " ", " ", " ", " ", " ", " ", "WRE" }
+        { " ", " ", " ", " ", " ", " ", " ", "WR" }
     }};
     board = convert_string_list_to_board_(tabuleiro);
     tab = new Tabuleiro(board, true, 100);
@@ -247,11 +262,11 @@ void TestarMovimentos()
         { " ", " ", " ", " ", " ", " ", " ", " " },
         { " ", " ", " ", " ", " ", " ", " ", " " },
         { " ", " ", " ", " ", " ", " ", " ", " " },
-        { " ", " ", " ", "BRA", " ", " ", " ", " " },
+        { " ", " ", " ", "BQ", " ", " ", " ", " " },
         { " ", " ", " ", " ", " ", " ", " ", " " },
         { " ", " ", " ", " ", " ", " ", " ", " " },
         { " ", " ", " ", " ", " ", " ", " ", " " },
-        { " ", " ", " ", " ", " ", " ", " ", "WRA" }
+        { " ", " ", " ", " ", " ", " ", " ", "WQ" }
     }};
     board = convert_string_list_to_board_(tabuleiro);
     tab = new Tabuleiro(board, true, 100);
@@ -280,7 +295,54 @@ void TestarMovimentos()
     assert(movimentos.size() == 8);
     system("clear");
 
+    tabuleiro = 
+    {{
+        { "BT", "BC", "BB", "BR", "BR", "BB", "BC", "BT" },
+        { "BP", "BP", "BP", "BP", "BP", "BP", "BP", "BP" },
+        { " ", " ", " ", " ", " ", " ", " ", " " },
+        { " ", " ", " ", " ", " ", " ", " ", " " },
+        { " ", "WP", " ", " ", " ", " ", " ", " " },
+        { " ", " ", " ", " ", " ", " ", " ", " " },
+        { "WP", " ", "WP", "WP", "WP", "WP", "WP", "WP" },
+        { "WT", "WC", "WB", "WR", "WR", "WB", "WC", "WT" }
+    }};
+
+    board = convert_string_list_to_board_(tabuleiro);
+    tab = new Tabuleiro(board, true, 100);
+    movimentos = GameController::getPossiveisMovimentos(*tab, true);
+    std::cout << "Tamanho: " << movimentos.size() << std::endl;
+    assert(movimentos.size() == 26);
+    system("clear");
+
+}
+void TestarCheques()
+{
+    std::vector<Jogada> movimentos;
+    Tabuleiro* tab;
+    std::array<std::array<std::string, 8>, 8> tabuleiro = {{
+        { "BT", "BC", "BB", "BQ", "BR", "BB", "BC", "BT" },
+        { "BP", "BP", "BP", "BP", "BP", "BP", "BP", "BP" },
+        { " ", " ", " ", " ", " ", " ", " ", " " },
+        { " ", " ", " ", " ", " ", " ", " ", " " },
+        { " ", " ", " ", " ", "WP", " ", " ", " " },
+        { " ", " ", " ", " ", " ", " ", " ", " " },
+        { "WP", "WP", "WP", "WP", " ", "WP", "WP", "WP" },
+        { "WT", "WC", "WB", "WQ", "WR", "WB", "WC", "WT" }
+    }};
+    Peça* (*board)[8] = convert_string_list_to_board_(tabuleiro);
+    tab = new Tabuleiro(board, true, 100);
+    GameController* gameController = new GameController(*tab, 100, sf::Vector2i(4, 7), sf::Vector2i(4, 0));
+    std::cout << "Cheques: " << std::endl;
+    bool isCheckForWhite = gameController->analisarCheck(true);
+    assert(isCheckForWhite == false);
+    bool isCheckForBlack = gameController->analisarCheck(false);
+    assert(isCheckForBlack == false); 
+    bool isCheckmateForWhite = gameController->analisarCheckmate(true);
+    assert(isCheckmateForWhite == false);
+    bool isCheckmateForBlack = gameController->analisarCheckmate(false);
+    assert(isCheckmateForBlack == false);
 }
 int main() {
     TestarMovimentos();
+    //TestarCheques();
 }

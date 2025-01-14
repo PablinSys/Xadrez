@@ -9,11 +9,13 @@
 
 class Bot {
         Game game;
-        void Animaçao(sf::Vector2i pos_peça, sf::Vector2f new_pos);
+        Algoritmo algoritmo;
+        int jogadas;
+        void Animaçao(sf::Vector2i pos_peça, sf::Vector2i new_pos);
+        Jogada analisarMelhorMovimento(Tabuleiro* tabuleiro, const Jogada& jogador_movimento);
     public:
         Bot(Game& game);
-        void jogar(Tabuleiro* tabuleiro);
-        void analisarMelhorMovimento(Tabuleiro* tabuleiro);
+        void jogar();
 };
 
 #endif

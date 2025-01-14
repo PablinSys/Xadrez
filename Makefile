@@ -8,7 +8,7 @@ BUILD_DIR := build
 BIN_DIR := bin
 MAIN := main
 
-OBJETOS := $(BUILD_DIR)/main.o $(BUILD_DIR)/tabuleiro.o $(BUILD_DIR)/peças.o $(BUILD_DIR)/gameUI.o $(BUILD_DIR)/gameController.o $(BUILD_DIR)/game.o
+OBJETOS := $(BUILD_DIR)/main.o $(BUILD_DIR)/tabuleiro.o $(BUILD_DIR)/peças.o $(BUILD_DIR)/gameUI.o $(BUILD_DIR)/gameController.o $(BUILD_DIR)/game.o $(BUILD_DIR)/bot.o $(BUILD_DIR)/algoritmo.o
 CXX := g++
 CXXFLAGS := -std=c++17 -Wall -g
 
@@ -36,6 +36,12 @@ $(BUILD_DIR)/gameUI.o: $(SRC_DIR)/gameUI.cpp
 
 $(BUILD_DIR)/game.o: $(SRC_DIR)/game.cpp
 	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -c $(SRC_DIR)/game.cpp -o $@
+
+$(BUILD_DIR)/bot.o: $(SRC_DIR)/bot.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -c $(SRC_DIR)/bot.cpp -o $@
+
+$(BUILD_DIR)/algoritmo.o: $(SRC_DIR)/algoritmo.cpp
+	$(CXX) $(CXXFLAGS) $(INCLUDE_DIRS) -c $(SRC_DIR)/algoritmo.cpp -o $@
 
 $(BIN_DIR)/$(MAIN): $(OBJETOS)
 	$(CXX) $(OBJETOS) $(LIB_DIR) $(LIBS) -o $@

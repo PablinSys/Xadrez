@@ -11,15 +11,17 @@ class GameController
     private:
         float tamanho_casas;
         sf::Vector2i posReiJogador, posReiOponente;
-        Tabuleiro tabuleiro;
-        std::vector<Jogada> getPossiveisMovimentos(Tabuleiro& tab, const bool& isWhite);
     public:
+        Tabuleiro tabuleiro;
+        Jogada jogador_jogada = Jogada();
         GameController(Tabuleiro& tabuleiro, const float& tamanho);
-        int moverPeça(sf::Vector2i peça_pos, sf::Vector2f new_pos, bool emMovimento);
-        Peça* (*getTabuleiro())[8];
-        bool analisarEmpate();
-        bool analisarCheck(const bool& isWhite);
+        GameController(Tabuleiro& tabuleiro, const float& tamanho, sf::Vector2i posReiJogador, sf::Vector2i posReiOponente);
+        bool moverPeça(sf::Vector2i peça_pos, sf::Vector2f new_pos, bool emMovimento);
+        static std::vector<Jogada> getPossiveisMovimentos(Tabuleiro& tab, const bool& isWhite);
+        static std::vector<Jogada> getPossiveisMovimentos(Tabuleiro& tab, const bool& isWhite, bool isSorted, bool isFiltred, int nivel);
         bool analisarCheckmate(const bool& isWhite); // responsavel por verificar se o rei esta em checkmate, testando todos os movimentos possiveis das peças para ver se ele esta em check todas
+        bool analisarCheck(const bool& isWhite);
+        bool analisarEmpate() const;
         ~GameController() = default;
 };
 
