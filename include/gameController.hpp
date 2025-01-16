@@ -12,9 +12,9 @@ class GameController
         float tamanho_casas;
         sf::Vector2i posReiJogador, posReiOponente;
     public:
-        Tabuleiro tabuleiro;
+        Tabuleiro* tabuleiro;
         Jogada jogador_jogada = Jogada();
-        GameController(Tabuleiro& tabuleiro, const float& tamanho);
+        GameController(Tabuleiro* tabuleiro, const float& tamanho);
         GameController(Tabuleiro& tabuleiro, const float& tamanho, sf::Vector2i posReiJogador, sf::Vector2i posReiOponente);
         bool moverPeça(sf::Vector2i peça_pos, sf::Vector2f new_pos, bool emMovimento);
         static std::vector<Jogada> getPossiveisMovimentos(Tabuleiro& tab, const bool& isWhite);

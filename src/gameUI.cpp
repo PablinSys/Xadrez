@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <iostream>
 
-GameUI::GameUI(sf::RenderWindow& window, Tabuleiro& tabuleiro)
+GameUI::GameUI(sf::RenderWindow& window, Tabuleiro* tabuleiro)
     : window(&window), tabuleiro(tabuleiro)
 {
     renderTab();
@@ -15,7 +15,7 @@ void GameUI::renderTab()
 {
     int qtdVertices = 4, pos_x = 0, pos_y = 0, index = 0;
     tamanho_casas = (window->getSize().x + window->getSize().y)/2/8; int tamanho = (int)tamanho_casas;
-    tabuleiro.tamanho_casas = tamanho;
+    tabuleiro->tamanho_casas = tamanho;
     bool casasPretas = true;
     for(int y = 0; y < 8; y++)
     {
@@ -41,39 +41,36 @@ void GameUI::renderTab()
 }
 void GameUI::update(GameController* gameC)
 {
-    if ((int)tamanho_casas != (int)((window->getSize().x + window->getSize().y)/2/8))
-        renderTab();
+    if (window != nullptr)
+    {
+        if ((int)tamanho_casas != (int)((window->getSize().x + window->getSize().y)/2/8))
+            renderTab();
 
-    window->clear(sf::Color::Black);
-    auto peças = gameC->tabuleiro.getTabuleiro();
-    for (int i = 0; i < 64; i++)
-        window->draw(tabuleiroUI[i]);
-    for (int y = 0; y < 8; y++)
-        for (int x = 0; x < 8; x++)
-            if (peças[y][x] != nullptr)
-                window->draw(peças[y][x]->objectUI);
+        window->clear(sf::Color::Black);
+        auto peças = gameC->tabuleiro->getTabuleiro();
+        for (int i = 0; i < 64; i++)
+            window->draw(tabuleiroUI[i]);
+        for (int y = 0; y < 8; y++)
+            for (int x = 0; x < 8; x++)
+                if (peças[y][x] != nullptr)
+                    window->draw(peças[y][x]->objectUI);
 
-    window->display();
+        window->display();
+    }
 }
 bool GameUI::OnMouseButtonLeftPressed(GameController* gameC)
 {
     int pos_x = (int)( sf::Mouse::getPosition(*window).x/tamanho_casas), pos_y = (int)(sf::Mouse::getPosition(*window).y/tamanho_casas);
-
+    if (gameC->tabuleiro->getTabuleiro()[pos_y][pos_x] == nullptr)
+        return false;
+    else if (gameC->tabuleiro->getTabuleiro()[pos_y][pos_x]->isWhite != gameC->tabuleiro->brancasPrimeiro)
+        return false;
 	while (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 	{
         gameC->moverPeça({pos_x, pos_y}, {(float) sf::Mouse::getPosition(*window).x, (float) sf::Mouse::getPosition(*window).y}, sf::Mouse::isButtonPressed(sf::Mouse::Left));
         update(gameC);
 	}
     return gameC->moverPeça({pos_x, pos_y}, {(float) sf::Mouse::getPosition(*window).x, (float) sf::Mouse::getPosition(*window).y}, sf::Mouse::isButtonPressed(sf::Mouse::Left));
-}
-void GameUI::OnMouseButtonLeftClicked(GameController* gameC)
-{
-    return;
-
-    int pos_x = (int)( sf::Mouse::getPosition(*window).x/tamanho_casas), pos_y = (int)(sf::Mouse::getPosition(*window).y/tamanho_casas);
-    while (!sf::Mouse::isButtonPressed(sf::Mouse::Left)){}
-    gameC->moverPeça({pos_x, pos_y}, {(float) sf::Mouse::getPosition(*window).x, (float) sf::Mouse::getPosition(*window).y}, sf::Mouse::isButtonPressed(sf::Mouse::Left));
-    update(gameC);
 }
 GameUI::~GameUI()
 {

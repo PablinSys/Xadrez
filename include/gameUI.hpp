@@ -10,13 +10,13 @@ class GameController;
 class GameUI
 {
     private:
-        Tabuleiro tabuleiro;
+        Tabuleiro* tabuleiro;
         sf::RenderWindow* window;
         sf::VertexArray tabuleiroUI[64];
         void renderTab();
     public:
         float tamanho_casas;
-        GameUI(sf::RenderWindow& window, Tabuleiro& tabuleiro);
+        GameUI(sf::RenderWindow& window, Tabuleiro* tabuleiro);
         void update(GameController* gameC);
         bool OnMouseButtonLeftPressed(GameController* gameC);
         void OnMouseButtonLeftClicked(GameController* gameC);

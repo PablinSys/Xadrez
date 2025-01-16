@@ -310,7 +310,6 @@ void TestarMovimentos()
     board = convert_string_list_to_board_(tabuleiro);
     tab = new Tabuleiro(board, true, 100);
     movimentos = GameController::getPossiveisMovimentos(*tab, true);
-    std::cout << "Tamanho: " << movimentos.size() << std::endl;
     assert(movimentos.size() == 26);
     system("clear");
 
@@ -332,7 +331,6 @@ void TestarCheques()
     Peça* (*board)[8] = convert_string_list_to_board_(tabuleiro);
     tab = new Tabuleiro(board, true, 100);
     GameController* gameController = new GameController(*tab, 100, sf::Vector2i(4, 7), sf::Vector2i(4, 0));
-    std::cout << "Cheques: " << std::endl;
     bool isCheckForWhite = gameController->analisarCheck(true);
     assert(isCheckForWhite == false);
     bool isCheckForBlack = gameController->analisarCheck(false);
