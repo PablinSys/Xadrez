@@ -33,32 +33,32 @@ Rei::Rei(const std::filesystem::path& path_img, Tabuleiro& tab , const sf::Vecto
 
 Peça* Peao::clone() const
 {
-    return new Peao(*this);
+    return new Peao(isWhite, positionIndex, primeiroLance);
 }
 
 Peça* Torre::clone() const
 {
-    return new Torre(*this);
+    return new Torre(isWhite, positionIndex);
 }
 
 Peça* Bispo::clone() const
 {
-    return new Bispo(*this);
+    return new Bispo(isWhite, positionIndex);
 }
 
 Peça* Cavalo::clone() const
 {
-    return new Cavalo(*this);
+    return new Cavalo(isWhite, positionIndex);
 }
 
 Peça* Rainha::clone() const
 {
-    return new Rainha(*this);
+    return new Rainha(isWhite, positionIndex);
 }
 
 Peça* Rei::clone() const
 {
-    return new Rei(*this);
+    return new Rei(isWhite, positionIndex);
 }
 
 
@@ -553,7 +553,6 @@ std::vector<Jogada> Torre::movimentosPossiveis(Tabuleiro* tab) const
 
         if (pos_x >= 0 && pos_x < 8 && pos_y >= 0 && pos_y < 8 && !passouLimite1)
         {
-            //std::cout << "Torre verificando vertical em (" << pos_x << ", " << pos_y << ")" << std::endl;
             if (tab->getTabuleiro()[pos_y][pos_x] != nullptr)
             {
                 if (tab->getTabuleiro()[pos_y][pos_x]->isWhite != isWhite)
@@ -685,10 +684,6 @@ bool Rei::isCheck(Tabuleiro* tabuleiro, const bool& isWhite)
                         typeid(*tab[pos_y][pos_x]) == typeid(Bispo) || 
                         typeid(*tab[pos_y][pos_x]) == typeid(Rainha))
                     {
-                        // std::cout << "Piece marking the king: " 
-                        //           << typeid(*tab[pos_y][pos_x]).name() 
-                        //           << " at position (" << pos_x << ", " 
-                        //           << pos_y << ")" << std::endl;
                         return true;
                     }
                     else 
@@ -713,10 +708,6 @@ bool Rei::isCheck(Tabuleiro* tabuleiro, const bool& isWhite)
                         typeid(*tab[pos_y][pos_x]) == typeid(Bispo) || 
                         typeid(*tab[pos_y][pos_x]) == typeid(Rainha))
                     {
-                        // std::cout << "[DIAGONALMENTE A ESQUERDA E DIREITA SUPERIOR] Peça marcando o rei: " 
-                        //           << typeid(*tab[pos_y][pos_x]).name() 
-                        //           << " na posição (" << pos_x << ", " 
-                        //           << pos_y << ")" << std::endl;
                         return true;
                     }
                     else 
@@ -745,10 +736,6 @@ bool Rei::isCheck(Tabuleiro* tabuleiro, const bool& isWhite)
                         typeid(*tab[pos_y][pos_x]) == typeid(Bispo) || 
                         typeid(*tab[pos_y][pos_x]) == typeid(Rainha))
                     {
-                        // std::cout << "Piece marking the king: " 
-                        //           << typeid(*tab[pos_y][pos_x]).name() 
-                        //           << " at position (" << pos_x << ", " 
-                        //           << pos_y << ")" << std::endl;
                         return true;
                     }
                     else 
@@ -769,10 +756,6 @@ bool Rei::isCheck(Tabuleiro* tabuleiro, const bool& isWhite)
                         typeid(*tab[pos_y][pos_x]) == typeid(Bispo) || 
                         typeid(*tab[pos_y][pos_x]) == typeid(Rainha))
                     {
-                        // std::cout << "[DIAGONALMENTE A ESQUERDA E DIREITA SUPERIOR]Peça marcando o rei: " 
-                        //           << typeid(*tab[pos_y][pos_x]).name() 
-                        //           << " na posição (" << pos_x << ", " 
-                        //           << pos_y << ")" << std::endl;
                         return true;
                     }
                     else 
@@ -801,11 +784,6 @@ bool Rei::isCheck(Tabuleiro* tabuleiro, const bool& isWhite)
                     if (typeid(*tab[pos_y][pos_x]) == typeid(Rainha) ||
                         typeid(*tab[pos_y][pos_x]) == typeid(Torre)) 
                     {
-                        // std::cout << "Peça marcando o rei: "
-                        //           << (tab[pos_y][pos_x]->isWhite ? "Branca " : "Preta ")
-                        //           << typeid(*tab[pos_y][pos_x]).name()
-                        //           << " na posição (" << pos_x << ", "
-                        //           << pos_y << ")" << std::endl;
                         return true;
                     }
                     else 
@@ -827,11 +805,6 @@ bool Rei::isCheck(Tabuleiro* tabuleiro, const bool& isWhite)
                     if (typeid(*tab[pos_y][pos_x]) == typeid(Rainha) ||
                         typeid(*tab[pos_y][pos_x]) == typeid(Torre)) 
                     {
-                        // std::cout << "Peça marcando o rei: "
-                        //           << (tab[pos_y][pos_x]->isWhite ? "Branca " : "Preta ")
-                        //           << typeid(*tab[pos_y][pos_x]).name()
-                        //           << " na posição (" << pos_x << ", "
-                        //           << pos_y << ")" << std::endl;
                         return true;
                     }
                     else 
@@ -859,11 +832,6 @@ bool Rei::isCheck(Tabuleiro* tabuleiro, const bool& isWhite)
                     if (typeid(*tab[pos_y][pos_x]) == typeid(Rainha) ||
                         typeid(*tab[pos_y][pos_x]) == typeid(Torre))
                     {
-                        // std::cout << "Peça marcando o rei: "
-                        //           << (tab[pos_y][pos_x]->isWhite ? "Branca " : "Preta ")
-                        //           << typeid(*tab[pos_y][pos_x]).name()
-                        //           << " na posição (" << pos_x << ", "
-                        //           << pos_y << ")" << std::endl;
                         return true;
                     }
                     else passouLimite1 = true;
@@ -882,11 +850,6 @@ bool Rei::isCheck(Tabuleiro* tabuleiro, const bool& isWhite)
                     if (typeid(*tab[pos_y][pos_x]) == typeid(Rainha) ||
                     typeid(*tab[pos_y][pos_x]) == typeid(Torre))
                     {
-                        // std::cout << "Peça marcando o rei: "
-                        //           << (tab[pos_y][pos_x]->isWhite ? "Branca " : "Preta ")
-                        //           << typeid(*tab[pos_y][pos_x]).name()
-                        //           << " na posição (" << pos_x << ", "
-                        //           << pos_y << ")" << std::endl;
                         return true;
                     }
                     else passouLimite2 = true;
@@ -912,9 +875,6 @@ bool Rei::isCheck(Tabuleiro* tabuleiro, const bool& isWhite)
                 if (typeid(*tab[pos_y][pos_x]) == typeid(Cavalo) &&
                     tab[pos_y][pos_x]->isWhite != isWhite) 
                 {
-                    // std::cout << "Cavalo marcando o rei: " << typeid(*tab[pos_y][pos_x]).name()
-                    //             << " na posição (" << pos_x << ", " << pos_y << ")"
-                    //             << " cor: " << (tab[pos_y][pos_x]->isWhite ? "Branco" : "Preto") << std::endl;
                     return true;
                 }
         }
@@ -939,10 +899,6 @@ bool Rei::isCheck(Tabuleiro* tabuleiro, const bool& isWhite)
                     {
                         if (typeid(*tab[pos_y][pos_x]) == typeid(Rei))
                         {
-                            // std::cout << "Rei (" << index_x << ", " << index_y << ") marcado por " 
-                            //           << typeid(*tab[pos_y][pos_x]).name() 
-                            //           << ": na posição (" << pos_x << ", " 
-                            //           << pos_y << ")" << std::endl;
                             return true;
                         }
                     }
