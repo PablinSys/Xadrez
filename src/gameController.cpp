@@ -40,7 +40,11 @@ std::vector<Jogada> GameController::getPossiveisMovimentos(Tabuleiro& tab, const
                         Tabuleiro test_tab = tab;
                         test_tab.moverPeça({x, y}, movimento.new_pos);
 
+<<<<<<< HEAD
                         sf::Vector2i rei_pos = dynamic_cast<Rei*>(test_tab.getTabuleiro()[movimento.new_pos.y][movimento.new_pos.x]) != nullptr ? movimento.new_pos : Tabuleiro::getReiPosition(&tab, isWhite);
+=======
+                        sf::Vector2i rei_pos = dynamic_cast<Rei*>(test_tab.getTabuleiro()[movimento.new_pos.y][movimento.new_pos.x]) != nullptr ? movimento.new_pos : Tabuleiro::getReiPosition(&test_tab, isWhite);
+>>>>>>> fb128efeca15fd5c875bf7393467657ba225a8f1
 
                         if (Rei* rei = dynamic_cast<Rei*>(test_tab.getTabuleiro()[rei_pos.y][rei_pos.x]))
                             if (!rei->isCheck(&test_tab, isWhite))

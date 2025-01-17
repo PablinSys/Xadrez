@@ -85,10 +85,13 @@ Jogada Bot::analisarMelhorMovimento(Tabuleiro* tabuleiro, const Jogada& jogador_
                 Tabuleiro test_tab = *tabuleiro;
                 test_tab.moverPeça(jogada.peça_pos, jogada.new_pos);
 
+<<<<<<< HEAD
                 // Analisando se o movimento é valido
                 if (auto pos_rei = Tabuleiro::getReiPosition(&test_tab, !tabuleiro->brancasPrimeiro); dynamic_cast<Rei*>(test_tab.getTabuleiro()[pos_rei.y][pos_rei.x])->isCheck(&test_tab, false))
                     continue;
 
+=======
+>>>>>>> fb128efeca15fd5c875bf7393467657ba225a8f1
                 // Calculando a pontuação do movimento
                 points = algoritmo.minimax(tabuleiro, jogada.peça_pos, false, -999, 999, max_depth, true);
 
@@ -111,10 +114,13 @@ Jogada Bot::analisarMelhorMovimento(Tabuleiro* tabuleiro, const Jogada& jogador_
             Tabuleiro test_tab = *tabuleiro;
             test_tab.moverPeça(movimento.peça_pos, movimento.new_pos);
 
+<<<<<<< HEAD
             // Analisando se o movimento é valido
             if (auto pos_rei = Tabuleiro::getReiPosition(&test_tab, !tabuleiro->brancasPrimeiro); dynamic_cast<Rei*>(test_tab.getTabuleiro()[pos_rei.y][pos_rei.x])->isCheck(&test_tab, false))
                 continue;
 
+=======
+>>>>>>> fb128efeca15fd5c875bf7393467657ba225a8f1
             // Calculando a pontuação do movimento
             points = algoritmo.minimax(tabuleiro, movimento.new_pos, false, -999, 999, max_depth, true);
 
@@ -135,10 +141,13 @@ Jogada Bot::analisarMelhorMovimento(Tabuleiro* tabuleiro, const Jogada& jogador_
             Tabuleiro test_tab = *tabuleiro;
             test_tab.moverPeça(movimento.peça_pos, movimento.new_pos);
 
+<<<<<<< HEAD
             // Analisando se o movimento é valido
             if (auto pos_rei = Tabuleiro::getReiPosition(&test_tab, !tabuleiro->brancasPrimeiro); dynamic_cast<Rei*>(test_tab.getTabuleiro()[pos_rei.y][pos_rei.x])->isCheck(&test_tab, false))
                 continue;
 
+=======
+>>>>>>> fb128efeca15fd5c875bf7393467657ba225a8f1
             // Calculando a pontuação do movimento usando a heuristica sem analise profundas
             points = Algoritmo::avaliacao(&test_tab, movimento.new_pos, false, 4, false);
 
