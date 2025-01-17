@@ -36,6 +36,7 @@ void Bot::Animaçao(sf::Vector2i pos_peça, sf::Vector2i new_pos)
  * @brief Função que permite o bot(IA) movimentar peças
  * 
  * A função pega o melhor movimento e o executa
+ * 
  */
 void Bot::jogar()
 {
@@ -48,6 +49,7 @@ void Bot::jogar()
         Animaçao(movimento.peça_pos, movimento.new_pos);
 }
 
+// TODO: Melhorar o uso do cache 
 /**
  * @brief Função que retorna o melhor movimento para o bot(IA)
  * 
@@ -59,8 +61,8 @@ void Bot::jogar()
  * @param jogador_movimento Jogada anterior do jogador(humano)
  * 
  * @return Jogada Melhor movimento
+ * 
  */
-// TODO: Melhorar o uso do cache 
 Jogada Bot::analisarMelhorMovimento(Tabuleiro* tabuleiro, const Jogada& jogador_movimento)
 {
     Jogada melhorMovimento;

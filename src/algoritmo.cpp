@@ -106,7 +106,7 @@ float Algoritmo::avaliacao(Tabuleiro* tabuleiro, sf::Vector2i pos_peça, bool is
     if (nivel >= 0)
     {
         // Variavel responsável pela diferenca de pontuação entre as peças
-        int diff =  (isJogador ? 1 : -1);
+        int diff = (isJogador ? 1 : -1);
         // Percorrendo todas as peças
         for (const std::vector<Peça*>& linha : tab)
             for (Peça* peça : linha)

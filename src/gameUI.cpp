@@ -109,14 +109,14 @@ void GameUI::MostrarCasasPossiveis(GameController* gameC, std::vector<Jogada> mo
 }
 
 /**
- * @brief Verifica se o jogador clicou em uma peça
+ * @brief Verifica se a peça foi movida com sucesso
  * 
  * Armazena a posicao incial da peça clicada, e enquanto o jogador pressionar 
  * e mover o mouse, atualiza o tabuleiro com a peça sendo movida
  * 
  * @param gameC GameController responsavel pelo tabuleiro
  * @return true se o jogador clicou em uma peça
- * @return false se o jogador nao clicou em uma peça
+ * @return True se o status de jogada foi sucedida False se nao
  * 
  */
 bool GameUI::OnMouseButtonLeftPressed(GameController* gameC)
