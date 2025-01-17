@@ -12,8 +12,9 @@ class GameUI
     private:
         Tabuleiro* tabuleiro;
         sf::RenderWindow* window;
-        sf::VertexArray tabuleiroUI[64];
+        sf::VertexArray tabuleiroUI[8][8];
         void renderTab();
+        void MostrarCasasPossiveis(GameController* gameC, std::vector<Jogada> movimentosPossiveis);
     public:
         float tamanho_casas;
         GameUI(sf::RenderWindow& window, Tabuleiro* tabuleiro);

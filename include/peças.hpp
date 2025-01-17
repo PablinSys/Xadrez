@@ -18,7 +18,6 @@ class Peça //classe abstrata
 		sf::Sprite objectUI;
 		Peça(const bool& isWhite, const sf::Vector2i& positionIndex) : isWhite(isWhite), positionIndex(positionIndex) {}
 		Peça(const std::filesystem::path& path_img, Tabuleiro& tab, const sf::Vector2i& positionIndex, const bool& isWhite);
-		virtual bool analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const = 0;
 		virtual Peça* clone() const = 0;
 		virtual std::vector<Jogada> movimentosPossiveis(Tabuleiro* tab) const = 0;
 		virtual ~Peça() = default;
@@ -29,7 +28,6 @@ class Peao : public Peça
 		bool primeiroLance;
 		Peao(const std::filesystem::path& path_img, Tabuleiro& tab, const sf::Vector2i& positionIndex, const bool& isWhite, bool primeiroLance);
 		Peao(const bool& isWhite, const sf::Vector2i& positionIndex, bool primeiroLance) : Peça(isWhite, positionIndex), primeiroLance(primeiroLance) {}
-		bool analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const override;
 		std::vector<Jogada> movimentosPossiveis(Tabuleiro* tab) const override;
 		Peça* clone() const override;
 };
@@ -38,7 +36,6 @@ class Torre : virtual public Peça
 	public :
 		Torre(const std::filesystem::path& path_img, Tabuleiro& tab, const sf::Vector2i& positionIndex, const bool& isWhite);
 		Torre(const bool& isWhite, const sf::Vector2i& positionIndex) : Peça(isWhite, positionIndex) {}
-		bool analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const override;
 		std::vector<Jogada> movimentosPossiveis(Tabuleiro* tab) const override;
 		Peça* clone() const override;
 };
@@ -47,7 +44,6 @@ class Cavalo : public Peça
 	public :
 		Cavalo(const std::filesystem::path& path_img, Tabuleiro& tab, const sf::Vector2i& positionIndex, const bool& isWhite);
 		Cavalo(const bool& isWhite, const sf::Vector2i& positionIndex) : Peça(isWhite, positionIndex) {}
-		bool analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const override;
 		std::vector<Jogada> movimentosPossiveis(Tabuleiro* tab) const override;
 		Peça* clone() const override;
 };
@@ -56,7 +52,6 @@ class Bispo : virtual public Peça
 	public :
 		Bispo(const std::filesystem::path& path_img, Tabuleiro& tab, const sf::Vector2i& positionIndex, const bool& isWhite);
 		Bispo(const bool& isWhite, const sf::Vector2i& positionIndex) : Peça(isWhite, positionIndex) {}
-		bool analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const override;
 		std::vector<Jogada> movimentosPossiveis(Tabuleiro* tab) const override;
 		Peça* clone() const override;
 };
@@ -65,7 +60,6 @@ class Rainha : public Bispo, public Torre
 	public :
 		Rainha(const std::filesystem::path& path_img, Tabuleiro& tab, const sf::Vector2i& positionIndex, const bool& isWhite);
 		Rainha(const bool& isWhite, const sf::Vector2i& positionIndex) : Peça(isWhite, positionIndex), Bispo(isWhite, positionIndex), Torre(isWhite, positionIndex) {}
-		bool analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const override;
 		std::vector<Jogada> movimentosPossiveis(Tabuleiro* tab) const override;
 		Peça* clone() const override;
 };
@@ -74,7 +68,6 @@ class Rei : public Peça
 	public :
 		Rei(const std::filesystem::path& path_img, Tabuleiro& tab, const sf::Vector2i& positionIndex, const bool& isWhite);
 		Rei(const bool& isWhite, const sf::Vector2i& positionIndex) : Peça(isWhite, positionIndex) {}
-		bool analisarMovimento(Tabuleiro* tab, const sf::Vector2i& new_pos) const override;
 		std::vector<Jogada> movimentosPossiveis(Tabuleiro* tab) const override;
 		Peça* clone() const override;
 		bool isCheck(Tabuleiro* tabuleiro, const bool& isJogador);
