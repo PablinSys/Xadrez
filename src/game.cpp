@@ -11,11 +11,17 @@ Game::Game(sf::RenderWindow* window)
     gameController = new GameController(tabuleiro, gameUI->tamanho_casas);
 }
 
+// TODO: Implementar um menu de opções para o jogo, como selecionar o nível do algoritmo de IA, avaliar e recomendar jogadas, editar peças e o tabuleiro.
+/**
+ * @brief Executa o jogo
+ * 
+ */
 void Game::run()
 {
     bool vez_jogador = tabuleiro->brancasPrimeiro;
     bool vez_cpu = !tabuleiro->brancasPrimeiro;
     Bot CPU = Bot(*this);
+
     while (window->isOpen())
     {
         sf::Event event;
@@ -30,12 +36,12 @@ void Game::run()
                     {
                         gameUI->update(gameController);
                         if (auto qtd_movimentos = GameController::getPossiveisMovimentos(*gameController->tabuleiro, false).size(); qtd_movimentos < 12)
-                            if (gameController->analisarCheck(true))
+                            if (gameController->analisarCheck(false))
                             {
                                 if (qtd_movimentos == 0)
                                 {
                                     std::cout << "CHECKMATE!!!!\nVITORIA DO JOGADOR" << std::endl;
-                                    break;
+                                    window->close();
                                 }
                                 else 
                                     std::cout << "CHECK" << std::endl;
@@ -49,12 +55,12 @@ void Game::run()
         {
             CPU.jogar();
             if (auto qtd_movimentos = GameController::getPossiveisMovimentos(*gameController->tabuleiro, true).size(); qtd_movimentos < 12)
-                if (gameController->analisarCheck(false))
+                if (gameController->analisarCheck(true))
                 {
                     if (qtd_movimentos == 0)
                     {
                         std::cout << "CHECKMATE??!!\nVITORIA DA IA" << std::endl;
-                        break;
+                        window->close();
                     }
                     else 
                         std::cout << "VOCÊ LEVOU CHECK" << std::endl;
@@ -65,7 +71,6 @@ void Game::run()
         gameUI->update(gameController);
         sf::sleep(sf::milliseconds(100));
     }
-    window->close();
     //window->display();
     return;
 }

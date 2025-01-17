@@ -1,11 +1,14 @@
 #include "../include/bot.hpp"
 #include <iostream>
 
-Bot::Bot(Game& game) : game(game), algoritmo(game.gameController)
-{
-    jogadas = 0;
-}
+Bot::Bot(Game& game) : game(game), algoritmo(game.gameController){}
 
+/**
+ * @brief Função para animar a movimentação da peça
+ * 
+ * @param pos_peça Posição da peça posicionada
+ * @param new_pos Nova posição da peça
+ */
 void Bot::Animaçao(sf::Vector2i pos_peça, sf::Vector2i new_pos)
 {
     Peça* peça = game.gameController->tabuleiro->getTabuleiro()[new_pos.y][new_pos.x];
@@ -28,6 +31,13 @@ void Bot::Animaçao(sf::Vector2i pos_peça, sf::Vector2i new_pos)
         sf::sleep(sf::milliseconds(sleep_time_ms));
     }
 }
+
+/**
+ * @brief Função que permite o bot(IA) movimentar peças
+ * 
+ * A função pega o melhor movimento e o executa
+ * 
+ */
 void Bot::jogar()
 {
     Jogada movimento = analisarMelhorMovimento(game.gameController->tabuleiro, game.gameController->jogador_jogada);    
@@ -39,13 +49,27 @@ void Bot::jogar()
         Animaçao(movimento.peça_pos, movimento.new_pos);
 }
 
+// TODO: Melhorar o uso do cache 
+/**
+ * @brief Função que retorna o melhor movimento para o bot(IA)
+ * 
+ * A função retorna o melhor movimento para o bot(IA) usando o algoritmo minimax ou usando o cache 
+ * gerado pelo Algoritmo com os possíveis movimentos do jogador e os respectivos possíveis movimentos contra.
+ * Caso não encontre nenhum movimento, ele retorna um movimento avaliado com a heuristica
+ * 
+ * @param tabuleiro Tabuleiro atual
+ * @param jogador_movimento Jogada anterior do jogador(humano)
+ * 
+ * @return Jogada Melhor movimento
+ * 
+ */
 Jogada Bot::analisarMelhorMovimento(Tabuleiro* tabuleiro, const Jogada& jogador_movimento)
 {
     Jogada melhorMovimento;
-    float melhorPontuacao = -999;
+    float melhorPontuacao = -999, points;
     int max_depth = 2;
 
-    float points;
+    // Verificando se o cache contém o movimento do jogador armazenado
     auto it_key = algoritmo.cache.find(jogador_movimento.new_pos);
     if (it_key != algoritmo.cache.end())
     {
@@ -54,11 +78,21 @@ Jogada Bot::analisarMelhorMovimento(Tabuleiro* tabuleiro, const Jogada& jogador_
         algoritmo.Esvaziar_cache();
         for (const auto& [jogada, pontuacao] : jogadas)
         {
+            // Verificando se a peça da jogada é valida
             if (tabuleiro->getTabuleiro()[jogada.peça_pos.y][jogada.peça_pos.x] != nullptr)
             {
+                // Testando o movimento
                 Tabuleiro test_tab = *tabuleiro;
                 test_tab.moverPeça(jogada.peça_pos, jogada.new_pos);
+
+                // Analisando se o movimento é valido
+                if (auto pos_rei = Tabuleiro::getReiPosition(&test_tab, !tabuleiro->brancasPrimeiro); dynamic_cast<Rei*>(test_tab.getTabuleiro()[pos_rei.y][pos_rei.x])->isCheck(&test_tab, false))
+                    continue;
+
+                // Calculando a pontuação do movimento
                 points = algoritmo.minimax(tabuleiro, jogada.peça_pos, false, -999, 999, max_depth, true);
+
+                // Verificando se o movimento é melhor
                 if (points > melhorPontuacao)
                 {
                     melhorPontuacao = points;
@@ -73,9 +107,18 @@ Jogada Bot::analisarMelhorMovimento(Tabuleiro* tabuleiro, const Jogada& jogador_
         std::vector<Jogada> movimentos = GameController::getPossiveisMovimentos(*tabuleiro, !tabuleiro->brancasPrimeiro);
         for (Jogada& movimento : movimentos)
         {
+            // Testando o movimento
             Tabuleiro test_tab = *tabuleiro;
             test_tab.moverPeça(movimento.peça_pos, movimento.new_pos);
+
+            // Analisando se o movimento é valido
+            if (auto pos_rei = Tabuleiro::getReiPosition(&test_tab, !tabuleiro->brancasPrimeiro); dynamic_cast<Rei*>(test_tab.getTabuleiro()[pos_rei.y][pos_rei.x])->isCheck(&test_tab, false))
+                continue;
+
+            // Calculando a pontuação do movimento
             points = algoritmo.minimax(tabuleiro, movimento.new_pos, false, -999, 999, max_depth, true);
+
+            // Verificando se o movimento é melhor
             if (points > melhorPontuacao)
             {
                 melhorPontuacao = points;
@@ -83,14 +126,23 @@ Jogada Bot::analisarMelhorMovimento(Tabuleiro* tabuleiro, const Jogada& jogador_
             }
         }
     }
-    // Debugging the cache content
+    // Verificando se o movimento fornecido pelo bot(IA) é invalido
     if (tabuleiro->getTabuleiro()[melhorMovimento.peça_pos.y][melhorMovimento.peça_pos.x] == nullptr || melhorMovimento.new_pos == melhorMovimento.peça_pos)
     {
         for (Jogada& movimento : GameController::getPossiveisMovimentos(*tabuleiro, !tabuleiro->brancasPrimeiro))
         {
+            // Testando o movimento
             Tabuleiro test_tab = *tabuleiro;
             test_tab.moverPeça(movimento.peça_pos, movimento.new_pos);
+
+            // Analisando se o movimento é valido
+            if (auto pos_rei = Tabuleiro::getReiPosition(&test_tab, !tabuleiro->brancasPrimeiro); dynamic_cast<Rei*>(test_tab.getTabuleiro()[pos_rei.y][pos_rei.x])->isCheck(&test_tab, false))
+                continue;
+
+            // Calculando a pontuação do movimento usando a heuristica sem analise profundas
             points = Algoritmo::avaliacao(&test_tab, movimento.new_pos, false, 4, false);
+
+            // Verificando se o movimento é melhor
             if (points > melhorPontuacao)
             {
                 melhorPontuacao = points;
